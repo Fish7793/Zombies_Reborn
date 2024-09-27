@@ -3,8 +3,8 @@
 
 #define SERVER_ONLY;
 
-const int merge_seconds = 5;
-u16 maximum_zombies = 400;
+const int merge_seconds = 3;
+u16 maximum_zombies = 225;
 
 void onInit(CRules@ this)
 {
@@ -29,27 +29,64 @@ void onTick(CRules@ this)
 
 	CBlob@[] skeletons; getBlobsByName("skeleton", @skeletons);
 	CBlob@[] zombies;   getBlobsByName("zombie", @zombies);
-	
-	if (skeletons.length > zombies.length)
+	CBlob@[] zombie_knights;   getBlobsByName("zombieknight", @zombie_knights);
+	u16 skeles = skeletons.length;
+	u16 zombs = zombies.length;
+	u16 zks = zombie_knights.length;
+
+	print(skeles + " skeletons...");
+	print(zombs + " zombies...");
+	print(zks + " zombie knights...");
+	u16 skele_idx = 0;
+	u16 zomb_idx = 0;
+	u16 zk_idx = 0;
+	for (u8 iter = 0; iter < 15; iter++) 
 	{
-		if (skeletons.length > 3)
+		u16 total_count = this.get_u16("undead count");
+		if ((skeles < 4 && zombs < 2 && zks < 25) || total_count < maximum_zombies) 
 		{
-			server_CreateBlob("wraith", -1, skeletons[2].getPosition());
+			print("Terminating merge...");
+			break;
+		}
+
+		if (skeles > zombs && skeles > 3 && total_count - 4 > maximum_zombies)
+		{
+			Vec2f pos = skeletons[skele_idx].getPosition();
+
 			for (u8 i = 0; i < 4; i++)
 			{
-				skeletons[i].server_Die();
+				skeletons[skele_idx].server_Die();
+				skele_idx += 1;
+				skeles -= 1;
 			}
+			server_CreateBlob("wraith", -1, pos);
 		}
-	}
-	else
-	{
-		if (zombies.length > 1)
+		else if (zombs > zks && zombs > 1 && total_count - 2 > maximum_zombies)
 		{
-			server_CreateBlob("zombieknight", -1, zombies[1].getPosition());
+			Vec2f pos = zombies[zomb_idx].getPosition();
+
 			for (u8 i = 0; i < 2; i++)
 			{
-				zombies[i].server_Die();
+				zombies[zomb_idx].server_Die();
+				zomb_idx += 1;
+				zombs -= 1;
 			}
+			server_CreateBlob("zombieknight", -1, pos);
+		}
+		else if (zks > 25 && total_count - 25 > maximum_zombies) 
+		{
+			Vec2f pos = zombie_knights[zk_idx].getPosition();
+			for (u8 i = 0; i < 25; i++)
+			{
+				zombie_knights[zk_idx].server_Die();
+				zk_idx += 1;
+				zks -= 1;
+			}
+			server_CreateBlob("skelepede", -1, pos);
 		}
 	}
+
+	print(skele_idx + " skeletons consumed...");
+	print(zomb_idx + " zombies consumed...");
+	print(zk_idx + " zombie knights consumed...");
 }
