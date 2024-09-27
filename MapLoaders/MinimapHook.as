@@ -26,6 +26,38 @@ namespace Minimap
 		
 		color_underground = 0xff272D27
 	};
+
+	
+	Vec2f clampInsideMap(Vec2f pos, CMap@ map)
+	{
+		return Vec2f(
+			Maths::Clamp(pos.x, 0, (map.tilemapwidth - 0.1f) * map.tilesize),
+			Maths::Clamp(pos.y, 0, (map.tilemapheight - 0.1f) * map.tilesize)
+		);
+	}
+
+	bool isForegroundOutlineTile(Tile tile, CMap@ map)
+	{
+		return !map.isTileSolid(tile);
+	}
+
+	bool isOpenAirTile(Tile tile, CMap@ map)
+	{
+		return tile.type == CMap::tile_empty ||
+			map.isTileGrass(tile.type);
+	}
+
+	bool isBackgroundOutlineTile(Tile tile, CMap@ map)
+	{
+		return isOpenAirTile(tile, map);
+	}
+
+	bool isGoldOutlineTile(Tile tile, CMap@ map, bool is_gold)
+	{
+		return is_gold ?
+			!map.isTileSolid(tile.type) :
+			map.isTileGold(tile.type);
+	}
 }
 
 void CalculateMinimapColour(CMap@ map, u32 offset, TileType tile, SColor &out col)

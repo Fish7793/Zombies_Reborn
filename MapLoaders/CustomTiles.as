@@ -80,6 +80,20 @@ namespace CMap
 	};
 }
 
+namespace custom_colors
+{
+	enum color
+	{
+		ironore = 0xff705648,
+		coal = 0xff2E2E2E,
+		steel = 0xff879092,
+		iron = 0xff6B7273,
+		biron = 0xff3F4141,
+		
+		underground_marker = 0xff8A2BFF
+	};
+}
+
 bool isTileIronOre(const u16&in tile)
 {
 	return tile >= CMap::tile_ironore && tile <= CMap::tile_ironore_f;
