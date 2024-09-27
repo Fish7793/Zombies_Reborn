@@ -25,7 +25,11 @@ void onTick(CBlob@ this)
 			dir.Normalize();
 			Vec2f tp = pos + dir * (this.getRadius() + 4.0f);
 			TileType tile = map.getTile(tp).type;
-			if (!map.isTileGroundStuff(tile))
+			if (map.isTileGroundStuff(tile))
+			{
+				map.server_DestroyTile(tp, 0.05f, this);
+			} 
+			else 
 			{
 				map.server_DestroyTile(tp, 0.1f, this);
 			}
