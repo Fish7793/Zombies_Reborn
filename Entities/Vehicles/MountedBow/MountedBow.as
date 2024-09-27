@@ -37,7 +37,7 @@ void onInit(CBlob@ this)
 	if (!this.get("VehicleInfo", @v)) return;
 
 	Vehicle_AddAmmo(this, v,
-	                    25, // fire delay (ticks)
+	                    9, // fire delay (ticks)
 	                    1, // fire bullets amount
 	                    1, // fire cost
 	                    "mat_arrows", // bullet ammo config name
