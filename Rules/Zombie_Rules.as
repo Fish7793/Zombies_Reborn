@@ -13,6 +13,9 @@ const u8 GAME_WON = 5;
 const u8 nextmap_seconds = 15;
 u8 seconds_till_nextmap = nextmap_seconds;
 
+Random@ _rng = Random(XORRandom(100000));
+Noise@ _spawn_noise = Noise(_rng.Next());
+
 void onInit(CRules@ this)
 {
 	ConfigFile cfg;
@@ -53,45 +56,112 @@ void onTick(CRules@ this)
 	CMap@ map = getMap();
 	
 	const u32 gameTime = getGameTime();
-	const u32 day_cycle = this.daycycle_speed * 60;
-	const u8 dayNumber = (gameTime / getTicksASecond() / day_cycle) + 1;
+	const f32 day_cycle = this.daycycle_speed * 60.0f;
+	const f32 dayNumber = (gameTime / getTicksASecond() / day_cycle);
 	
 	//spawn zombies at night-time
-	const f32 difficulty = days_to_survive / (dayNumber * game_difficulty);
-	const u32 spawnRate = getTicksASecond() * difficulty;
+	const f32 ramp = 0.045f;
+	const f32 amp = 1.05f;
+	const f32 diff_amp = (getPlayerCount() * 0.35f + game_difficulty + 1.0f);
+
+	const f32 difficulty = days_to_survive / (amp * diff_amp * Maths::Log((amp * Maths::Pow(dayNumber, 3) + 1.0f) * diff_amp - getPlayerCount() / 2.0f) - (2 * diff_amp - 2));
+	// const f32 difficulty = days_to_survive / (dayNumber * (game_difficulty + (getPlayerCount() * 0.7f - 1)));
+
+	const u32 spawnRate = Maths::Clamp(getTicksASecond() * difficulty * 1.05f, 1, 1000);
 	
-	if (gameTime % spawnRate == 0)
+	if (dayNumber > 1 && gameTime % spawnRate == 0)
 	{
-		spawnZombie(this, map, dayNumber);
+		spawnZombie(this, map, dayNumber + 1.0f, difficulty);
 	}
 	
 	if (gameTime % getTicksASecond() == 0) //once every second
 	{
-		checkDayChange(this, dayNumber);
+		checkDayChange(this, dayNumber + 1.0f);
 		
 		onGameEnd(this);
+	}
+
+	if (gameTime % 1000 == 0) 
+	{
+		print("Game Time:  \t" + gameTime + "\tDay: " + (dayNumber + 1.0f));
+		print("Difficulty: \t" + difficulty);
+		print("Spawn Rate: \t" + 30.0f / spawnRate 					+ "/s\t" + (60.0f * 30.0f) / spawnRate + "/m");
+		print("Alternate:  \t" + _spawn_noise.Fractal(getGameTime() / 4000.0f, 0));
+		print("Diff Factor:\t" + (1.0 / (0.5f + difficulty * 5.0f)) + "  \t" + (1.0 / (0.5f + difficulty * 10.0f)));
 	}
 }
 
 // Spawn various zombie blobs on the map
-void spawnZombie(CRules@ this, CMap@ map, const u8&in dayNumber)
+void spawnZombie(CRules@ this, CMap@ map, const u8&in dayNumber, const f32&in difficulty)
 {
 	if (map.getDayTime() > 0.8f || map.getDayTime() < 0.1f)
 	{
-		if (dayNumber == this.get_u8("skelepede day")) return;
-
 		if (maximum_zombies != 999 && this.get_u16("undead count") >= maximum_zombies) return;
 		
-		const u32 r = XORRandom(100);
+		const f32 difficulty_factor_weight = 0.5f;
+		const f32 difficulty_factor  = (1.0 / (0.5f + difficulty * 5.0f));
+		const f32 difficulty_factor2 = (1.0 / (0.5f + difficulty * 10.0f));
+		const f32 r  = (XORRandom(10000) / 10000.0f) * (1 - difficulty_factor_weight) + difficulty_factor * difficulty_factor_weight;
+		const f32 alternate = _spawn_noise.Fractal(getGameTime() / 4000.0f, 0);
+
+		const f32 r2 = (XORRandom(10000) / 10000.0f) * (1 - difficulty_factor_weight) + difficulty_factor2 * difficulty_factor_weight;
+
+		u8 count = 1;
+		string blobname = "skeleton";
 		
-		string blobname = "skeleton"; //leftover       // 40%
+		if (difficulty_factor > 0.4 && alternate > 0.7 && dayNumber > 5) {
+			if 		(r2 >= 0.9875)  blobname ="sedgwick";
+			else if (r2 >= 0.975)  blobname ="skelepede";
+			else if (r2 >= 0.70)  blobname = "wraith";
+			else if (r2 >= 0.60)  blobname = "greg";
+			else if (r2 >= 0.50)  blobname = "zombieknight";
+		}
+		else 
+		{
+			if (r >= 0.995 && dayNumber > 5) 
+			{
+				if (XORRandom(6) == 0) 
+				{
+					blobname = "sedgwick";
+					count = 1 + XORRandom(1);
+				}
+				else 
+				{
+					blobname ="skelepede";
+				}
+			}
+			else if (r >= 0.95)  blobname = "greg";
+			else if (r >= 0.87)  blobname = "wraith";
+			else if (r >= 0.71) 
+			{ 
+				if (XORRandom(4) == 0) 
+				{
+					blobname = "zombie";
+					count = 1 + XORRandom(2);
+				}
+				else 
+				{
+					blobname = "zombieknight"; 
+				}
+			}
+			else if (r >= 0.35)  
+			{
+				if (XORRandom(4) == 0) 
+				{
+					blobname = "skeleton";
+					count = 1 + XORRandom(4);
+				}
+				else 
+				{
+					blobname = "zombie"; 
+				}
+			} 
+		}
 		
-		if (r >= 95)       blobname = "greg";          // 5%
-		else if (r >= 90)  blobname = "wraith";        // 5%
-		else if (r >= 75)  blobname = "zombieknight";  // 15%
-		else if (r >= 40)  blobname = "zombie";        // 35%
-		
-		server_CreateBlob(blobname, -1, getZombieSpawnPos(map));
+		for (u8 i = 0; i < count; i++) 
+		{
+			server_CreateBlob(blobname, -1, getZombieSpawnPos(map));
+		}
 	}
 }
 
