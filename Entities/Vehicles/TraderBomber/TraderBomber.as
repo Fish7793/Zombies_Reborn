@@ -31,13 +31,13 @@ void onInit(CBlob@ this)
 	if (isServer())
 	{
 		//hack
-		this.set_string("shop seed", XORRandom(5)+"-"+XORRandom(5)+"-"+XORRandom(4));
+		this.set_string("shop seed", XORRandom(4)+"-"+XORRandom(5)+"-"+XORRandom(4));
 		this.Sync("shop seed", true);
 	}
 	
 	// SHOP
 	this.set_Vec2f("shop offset", Vec2f_zero);
-	this.set_Vec2f("shop menu size", Vec2f(3, 5));
+	this.set_Vec2f("shop menu size", Vec2f(3, 6));
 	this.set_string("shop description", "Buy");
 	this.set_u8("shop icon", 25);
 	
@@ -60,14 +60,14 @@ void onInit(CBlob@ this)
 			AddStock(s, 1);
 			break;
 		}
-		case 2:
+		/*case 2:
 		{
 			ShopItem@ s = addShopItem(this, "Scroll of Sea", "$scroll_sea$", "scroll_sea", Translate::TradeScrollSea, true);
 			s.spawnNothing = true;
 			AddRequirement(s.requirements, "blob", "mat_gold", "Gold", 100);
 			AddStock(s, 1);
 			break;
-		}
+		}*/
 		case 3:
 		{
 			ShopItem@ s = addShopItem(this, "Scroll of Conveyance", "$scroll_teleport$", "scroll_teleport", Translate::TradeScrollTeleport, true);
@@ -228,6 +228,21 @@ void onInit(CBlob@ this)
 		s.spawnNothing = true;
 		s.customData = 255;
 		AddRequirement(s.requirements, "blob", "chicken", "Chicken", 1);
+	}
+	{
+		ShopItem@ s = addShopItem(this, "Buy Egg (1)", "$egg$", "egg", "Buy 1 Egg for 150 $COIN$", true);
+		s.customData = 255;
+		AddRequirement(s.requirements, "coin", "", "Coins", 150);
+	}
+	{
+		ShopItem@ s = addShopItem(this, "Buy Coal (250)", "$mat_coal$", "mat_coal", "Buy 250 Coal for 1000 $COIN$", true);
+		s.customData = 255;
+		AddRequirement(s.requirements, "coin", "", "Coins", 1000);
+	}
+	{
+		ShopItem@ s = addShopItem(this, "Buy Iron Ore (250)", "$mat_iron$", "mat_iron", "Buy 250 Iron Ore for 2000 $COIN$", true);
+		s.customData = 255;
+		AddRequirement(s.requirements, "coin", "", "Coins", 2000);
 	}
 	
 	//VEHICLE
