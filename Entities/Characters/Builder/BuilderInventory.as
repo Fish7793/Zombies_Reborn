@@ -13,8 +13,6 @@ namespace Builder
 		PAGE_ZERO = 0,
 		PAGE_ONE,
 		PAGE_TWO,
-		PAGE_THREE,
-		PAGE_FOUR,
 		PAGE_COUNT
 	};
 }
@@ -23,18 +21,14 @@ const string[] PAGE_NAME =
 {
 	"Building",
 	"Structure",
-	"Component",
-	"Source",
-	"Device",
+	"Wiring"
 };
 
 const Vec2f[] PAGE_SIZE =
 {
-	Vec2f(3, 5),
+	Vec2f(3, 6),
 	Vec2f(8, 5),
-	Vec2f(3, 4),
-	Vec2f(3, 2),
-	Vec2f(3, 3),
+	Vec2f(4, 6)
 };
 
 const u8 GRID_SIZE = 48;
