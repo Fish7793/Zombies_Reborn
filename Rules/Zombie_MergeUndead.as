@@ -41,13 +41,13 @@ void onTick(CRules@ this)
 	for (u8 iter = 0; iter < 15; iter++) 
 	{
 		u16 total_count = this.get_u16("undead count");
-		if ((skeles < 4 && zombs < 2 && zks < 25) || total_count < maximum_zombies) 
+		if ((skeles < 4 && zombs < 2 && zks < 25) || total_count < merge_zombies) 
 		{
 			print("Terminating merge...");
 			break;
 		}
 
-		if (skeles > zombs && skeles > 3 && total_count - 4 > maximum_zombies)
+		if (skeles > zombs && skeles > 3 && total_count - 4 > merge_zombies)
 		{
 			Vec2f pos = skeletons[skele_idx].getPosition();
 
@@ -61,7 +61,7 @@ void onTick(CRules@ this)
 			}
 			server_CreateBlob("wraith", -1, pos);
 		}
-		else if (zombs > zks && zombs > 1 && total_count - 2 > maximum_zombies)
+		else if (zombs > zks && zombs > 1 && total_count - 2 > merge_zombies)
 		{
 			Vec2f pos = zombies[zomb_idx].getPosition();
 
@@ -75,7 +75,7 @@ void onTick(CRules@ this)
 			}
 			server_CreateBlob("zombieknight", -1, pos);
 		}
-		else if (zks > 25 && total_count - 25 > maximum_zombies) 
+		else if (zks > 25 && total_count - 25 > merge_zombies) 
 		{
 			Vec2f pos = zombie_knights[zk_idx].getPosition();
 			for (u8 i = 0; i < 25; i++)
