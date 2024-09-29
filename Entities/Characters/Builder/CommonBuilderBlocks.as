@@ -194,8 +194,8 @@ void addCommonBuilderBlocks(BuildBlock[][]@ blocks, int team_num = 0, const stri
 		blocks[1].push_back(b);
 	}*/
 
-	// BuildBlock[] page_2;
-	// blocks.push_back(page_2);
+	BuildBlock[] page_2;
+	blocks.push_back(page_2);
 	{
 		BuildBlock b(0, "wire", "$wire$", "Wire");
 		AddRequirement(b.reqs, "blob", "mat_wood", "Wood", 10);
