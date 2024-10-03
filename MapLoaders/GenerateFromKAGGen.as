@@ -45,7 +45,7 @@ bool loadMap( CMap@ _map, const string& in filename)
 	s32 MaxLandHeight = cfg.read_s32("land_max_height", 10);
 	s32 MinFloorHeight = height-cfg.read_s32("land_min_height", 10);
 
-	int SeaLevel = height/4*3;
+	int SeaLevel = height/5*4;
 	
 	//done with vars! --------------------------------
 
