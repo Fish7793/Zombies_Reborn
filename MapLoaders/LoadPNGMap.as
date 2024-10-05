@@ -12,7 +12,7 @@ class ZombiePNGLoader : PNGLoader
 		super();
 	}
 	
-	void handlePixel(const SColor &in pixel, int offset) override
+	void handlePixel(const SColor &in pixel, int offset)
 	{
 		PNGLoader::handlePixel(pixel, offset);
 		switch (pixel.color)
