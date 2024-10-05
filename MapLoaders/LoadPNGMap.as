@@ -1,9 +1,23 @@
 // loads a classic KAG .PNG map
 
 #include "BasePNGLoader.as";
+#include "ProceduralGeneration.as";
 #include "MinimapHook.as";
 #include "CustomTiles.as";
-#include "DummyCommon.as";
+
+namespace custom_colors
+{
+	enum color
+	{
+		ironore = 0xff705648,
+		coal = 0xff2E2E2E,
+		steel = 0xff879092,
+		iron = 0xff6B7273,
+		biron = 0xff3F4141,
+		
+		underground_marker = 0xff8A2BFF
+	};
+}
 
 class ZombiePNGLoader : PNGLoader
 {
@@ -12,37 +26,62 @@ class ZombiePNGLoader : PNGLoader
 		super();
 	}
 	
-	// void handlePixel(const SColor &in pixel, int offset) override
-	// {
-	// 	PNGLoader::handlePixel(pixel, offset);
-	// 	switch (pixel.color)
-	// 	{
-	// 		case custom_colors::ironore:  map.SetTile(offset, CMap::tile_ironore + XORRandom(4)); break;
-	// 		case custom_colors::coal:     map.SetTile(offset, CMap::tile_coal + XORRandom(2));    break;
-	// 		case custom_colors::steel:    map.SetTile(offset, CMap::tile_steel);                  break;
-	// 		case custom_colors::iron:     map.SetTile(offset, CMap::tile_iron);                   break;
-	// 		case custom_colors::biron:    map.SetTile(offset, CMap::tile_biron);                  break;
+	void handlePixel(const SColor &in pixel, int offset) override
+	{
+		PNGLoader::handlePixel(pixel, offset);
+		switch (pixel.color)
+		{
+			case custom_colors::ironore:  map.SetTile(offset, CMap::tile_ironore + XORRandom(4)); break;
+			case custom_colors::coal:     map.SetTile(offset, CMap::tile_coal + XORRandom(2));    break;
+			case custom_colors::steel:    map.SetTile(offset, CMap::tile_steel);                  break;
+			case custom_colors::iron:     map.SetTile(offset, CMap::tile_iron);                   break;
+			case custom_colors::biron:    map.SetTile(offset, CMap::tile_biron);                  break;
 			
-	// 		case custom_colors::underground_marker:
-	// 		{
-	// 			map.AddMarker(map.getTileWorldPosition(offset), "underground");
-	// 			map.SetTile(offset, CMap::tile_ground);
-	// 			break;
-	// 		}
-	// 	};
-	// }
+			case custom_colors::underground_marker:
+			{
+				map.AddMarker(map.getTileWorldPosition(offset), "underground");
+				map.SetTile(offset, CMap::tile_ground);
+				break;
+			}
+		};
+	}
 };
 
-// bool LoadMap(CMap@ map, const string& in fileName)
-// {
-// 	print("LOADING ZOMBIES MAP " + fileName, 0xff66C6FF);
+bool LoadMap(CMap@ map, const string& in fileName)
+{
+	ZombiePNGLoader loader();
 
-// 	ZombiePNGLoader loader();
+	map.legacyTileMinimap = false;
+	
+	bool procedural_map_gen = true;
+	ConfigFile cfg;
+	if (cfg.loadFile("Zombie_Vars.cfg"))
+	{
+		procedural_map_gen = cfg.exists("procedural_map_gen") ? cfg.read_bool("procedural_map_gen") : true;
+	}
 
-// 	map.legacyTileMinimap = false;
+	int map_seed = Time();
+	CRules@ rules = getRules();
+	if (rules.exists("new map seed"))
+	{
+		const int new_map_seed = rules.get_s32("new map seed");
+		if (new_map_seed > -1)
+		{
+			map_seed = new_map_seed;
+			rules.set_s32("new map seed", -1);
+			procedural_map_gen = true;
+		}
+	}
+	
+	if (procedural_map_gen)
+	{
+		print("LOADING PROCEDURALLY GENERATED MAP - MAP SEED: "+map_seed, 0xff66C6FF);
+		return loadProceduralGenMap(map, map_seed);
+	}
 
-// 	return loader.loadMap(map, fileName);
-// }
+	print("LOADING ZOMBIES MAP " + fileName, 0xff66C6FF);
+	return loader.loadMap(map, fileName);
+}
 
 bool onMapTileCollapse(CMap@ map, u32 offset)
 {
