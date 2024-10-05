@@ -418,13 +418,6 @@ bool loadMap( CMap@ _map, const string& in filename)
 		int NodeOffset = -2-XORRandom(3);
 		int NodeSize = 7;
 		
-		int SewerLine = (Maths::Floor(height/NodeSize)-1)*NodeSize+5+NodeOffset;
-		
-		for(int i = 0; i < width; i += 1)
-		if(World[i][SewerLine] != 0){
-			World[i][SewerLine] = GetRandomTunnelBackground();
-		}
-		
 		bool[][] Nodes;
 		
 		for(int i = 0; i < width/NodeSize; i += 1){ //Init underground tunnel node grid
@@ -536,10 +529,6 @@ bool loadMap( CMap@ _map, const string& in filename)
 						World[i*NodeSize+2][j*NodeSize+NodeOffset+2] = CMap::tile_castle;
 						World[i*NodeSize-1][j*NodeSize+NodeOffset+3] = CMap::tile_castle_moss;
 						World[i*NodeSize+1][j*NodeSize+NodeOffset+3] = CMap::tile_castle_moss;
-						
-						for(int k = j*NodeSize+NodeOffset+2; k < SewerLine; k += 1){
-							World[i*NodeSize][k] = CMap::tile_castle_back_moss;
-						}
 					}
 				}
 			}
