@@ -5,6 +5,7 @@
 
 const int merge_seconds = 5;
 u16 merge_zombies = 300;
+u16 maximum_skelepedes = 3;
 
 void onInit(CRules@ this)
 {
@@ -12,6 +13,8 @@ void onInit(CRules@ this)
 	if (cfg.loadFile("Zombie_Vars.cfg"))
 	{
 		merge_zombies = cfg.exists("merge_zombies") ? cfg.read_u16("merge_zombies") : 400;
+		maximum_skelepedes = cfg.exists("maximum_skelepedes") ? cfg.read_u16("maximum_skelepedes") : 4;
+
 		if (merge_zombies == u16(-1))
 		{
 			this.RemoveScript(getCurrentScriptName());
@@ -28,9 +31,12 @@ void onTick(CRules@ this)
 	CBlob@[] skeletons; getBlobsByName("skeleton", @skeletons);
 	CBlob@[] zombies;   getBlobsByName("zombie", @zombies);
 	CBlob@[] zombie_knights;   getBlobsByName("zombieknight", @zombie_knights);
+	CBlob@[] skelepedes; getBlobsByName("skelepede", @skelepedes);
+
 	u16 skeles = skeletons.length;
 	u16 zombs = zombies.length;
 	u16 zks = zombie_knights.length;
+	u16 skl = skelepedes.length;
 
 	print(skeles + " skeletons...");
 	print(zombs + " zombies...");
@@ -75,7 +81,7 @@ void onTick(CRules@ this)
 			}
 			server_CreateBlob("zombieknight", -1, pos);
 		}
-		else if (zks > 25 && total_count - 25 > merge_zombies) 
+		else if (zks > 25 && total_count - 25 > merge_zombies && skl < maximum_skelepedes + 1) 
 		{
 			Vec2f pos = zombie_knights[zk_idx].getPosition();
 			for (u8 i = 0; i < 25; i++)
