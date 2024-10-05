@@ -4,38 +4,12 @@
 #include "ProceduralGeneration.as";
 #include "MinimapHook.as";
 #include "CustomTiles.as";
+#include "DummyCommon.as";
 
-class ZombiePNGLoader : PNGLoader
-{
-	ZombiePNGLoader()
-	{
-		super();
-	}
-	
-	void handlePixel(const SColor &in pixel, int offset)
-	{
-		PNGLoader::handlePixel(pixel, offset);
-		switch (pixel.color)
-		{
-			case custom_colors::ironore:  map.SetTile(offset, CMap::tile_ironore + XORRandom(4)); break;
-			case custom_colors::coal:     map.SetTile(offset, CMap::tile_coal + XORRandom(2));    break;
-			case custom_colors::steel:    map.SetTile(offset, CMap::tile_steel);                  break;
-			case custom_colors::iron:     map.SetTile(offset, CMap::tile_iron);                   break;
-			case custom_colors::biron:    map.SetTile(offset, CMap::tile_biron);                  break;
-			
-			case custom_colors::underground_marker:
-			{
-				map.AddMarker(map.getTileWorldPosition(offset), "underground");
-				map.SetTile(offset, CMap::tile_ground);
-				break;
-			}
-		};
-	}
-};
 
 bool LoadMap(CMap@ map, const string& in fileName)
 {
-	ZombiePNGLoader loader();
+	PNGLoader loader();
 
 	map.legacyTileMinimap = false;
 	
