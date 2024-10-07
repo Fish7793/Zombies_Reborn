@@ -133,11 +133,34 @@ bool onServerProcessChat(CRules@ this, const string& in text_in, string& out tex
 			if (tokens[0] == "!respawn") //respawn player
 			{
 				const string ply_name = tokens.length > 1 ? tokens[1] : player.getUsername();
-				this.set_u32(ply_name+" respawn time", getGameTime());
+				
+				if (getPlayerByUsername(ply_name) !is null)
+				{
+					dictionary@ respawns;
+					this.get("respawns", @respawns);
+
+					respawns.set(ply_name, getGameTime());
+				}
 			}
 			else if (tokens[0] == "!loadgen")
 			{
-				const int map_seed = tokens.length > 1 ? parseInt(tokens[1]) : getMap().get_s32("map seed");
+				int map_seed = getMap().get_s32("map seed");
+				if (tokens.length > 1)
+				{
+					map_seed = parseInt(tokens[1]); // direct seed input
+					if (map_seed <= 0)
+					{
+						//otherwise make a seed from letters
+						u32 hash = 5381;
+						for (u32 i = 0; i < tokens[1].length(); i++)
+						{
+							hash = ((hash << 5) + hash) + tokens[1][i];
+							hash &= 0x7FFFFFFF;
+						}
+						map_seed = hash;
+					}
+				}
+
 				this.set_s32("new map seed", map_seed);
 				LoadNextMap();
 			}
