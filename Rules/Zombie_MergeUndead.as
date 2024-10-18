@@ -1,11 +1,17 @@
 // Zombie Fortress undead merging
-// primitive script that 'merges' zombies together when there is too many on the map
+// merges undead together when there is too many on the map
 
 #define SERVER_ONLY;
 
-const int merge_seconds = 5;
+const u8 merge_seconds = 5;
 u16 merge_zombies = 300;
-u16 maximum_skelepedes = 3;
+u16 maximum_skelepedes = 4;
+
+const u8 skeleton_merge_amount = 4;
+const u8 zombie_merge_amount = 2;
+const u8 zombieknight_merge_amount = 30;
+
+const u8 merge_attempts = 10;
 
 void onInit(CRules@ this)
 {
@@ -26,77 +32,76 @@ void onTick(CRules@ this)
 {
 	if (getGameTime() % (30*merge_seconds) != 0) return;
 
-	if (this.get_u16("undead count") < merge_zombies) return;
+	u16 undead_count = this.get_u16("undead count");
+	if (undead_count < merge_zombies) return;
 
-	CBlob@[] skeletons; getBlobsByName("skeleton", @skeletons);
-	CBlob@[] zombies;   getBlobsByName("zombie", @zombies);
-	CBlob@[] zombie_knights;   getBlobsByName("zombieknight", @zombie_knights);
-	CBlob@[] skelepedes; getBlobsByName("skelepede", @skelepedes);
-
-	u16 skeles = skeletons.length;
-	u16 zombs = zombies.length;
-	u16 zks = zombie_knights.length;
-	u16 skl = skelepedes.length;
-
-	print(skeles + " skeletons...");
-	print(zombs + " zombies...");
-	print(zks + " zombie knights...");
-	u16 skele_idx = 0;
-	u16 zomb_idx = 0;
-	u16 zk_idx = 0;
-	for (u8 iter = 0; iter < 15; iter++) 
+	CBlob@[] skeletons;       getBlobsByName("skeleton", @skeletons);
+	CBlob@[] zombies;         getBlobsByName("zombie", @zombies);
+	CBlob@[] zombieknights;   getBlobsByName("zombieknight", @zombieknights);
+	CBlob@[] skelepedes;      getBlobsByName("skelepede", @skelepedes);
+	
+	int skeletons_length = skeletons.length;
+	int zombies_length = zombies.length;
+	int zombieknights_length = zombieknights.length;
+	int skelepedes_length = skelepedes.length;
+	
+	for (u8 m = 0; m < merge_attempts; m++)
 	{
-		u16 total_count = this.get_u16("undead count");
-		if ((skeles < 4 && zombs < 2 && zks < 25) || total_count < merge_zombies) 
+		//merge skeletons into wraith
+		if (skeletons_length >= skeleton_merge_amount)
 		{
-			print("Terminating merge...");
-			break;
-		}
-
-		if (skeles > zombs && skeles > 3 && total_count - 4 > merge_zombies)
-		{
-			Vec2f pos = skeletons[skele_idx].getPosition();
-
-			for (u8 i = 0; i < 4; i++)
+			skeletons_length--;
+			server_CreateBlob("wraith", -1, skeletons[skeletons_length].getPosition());
+			for (u8 i = 0; i < skeleton_merge_amount; i++)
 			{
-				CBlob@ skeleton = skeletons[skele_idx];
+				CBlob@ skeleton = skeletons[skeletons_length];
 				skeleton.SetPlayerOfRecentDamage(null, 1.0f);
 				skeleton.server_Die();
-				skele_idx += 1;
-				skeles -= 1;
-			}
-			server_CreateBlob("wraith", -1, pos);
-		}
-		else if (zombs > zks && zombs > 1 && total_count - 2 > merge_zombies)
-		{
-			Vec2f pos = zombies[zomb_idx].getPosition();
 
-			for (u8 i = 0; i < 2; i++)
+				skeletons_length--;
+				undead_count--;
+			}
+		}
+
+		if (undead_count < merge_zombies) return;
+
+		//merge zombies into zombie knight
+		if (zombies_length >= zombie_merge_amount)
+		{
+			zombies_length--;
+			server_CreateBlob("zombieknight", -1, zombies[zombies_length].getPosition());
+			for (u8 i = 0; i < zombie_merge_amount; i++)
 			{
-				CBlob@ zombie = zombies[zomb_idx];
+				CBlob@ zombie = zombies[zombies_length];
 				zombie.SetPlayerOfRecentDamage(null, 1.0f);
 				zombie.server_Die();
-				zomb_idx += 1;
-				zombs -= 1;
-			}
-			server_CreateBlob("zombieknight", -1, pos);
-		}
-		else if (zks > 25 && total_count - 25 > merge_zombies && skl < maximum_skelepedes + 1) 
-		{
-			Vec2f pos = zombie_knights[zk_idx].getPosition();
-			for (u8 i = 0; i < 25; i++)
-			{
-				CBlob@ zombie_knight = zombie_knights[zk_idx];
-				zombie_knight.SetPlayerOfRecentDamage(null, 1.0f);
-				zombie_knight.server_Die();
-				zk_idx += 1;
-				zks -= 1;
-			}
-			server_CreateBlob("skelepede", -1, pos);
-		}
-	}
 
-	print(skele_idx + " skeletons consumed...");
-	print(zomb_idx + " zombies consumed...");
-	print(zk_idx + " zombie knights consumed...");
+				zombies_length--;
+				undead_count--;
+			}
+		}
+
+		if (undead_count < merge_zombies) return;
+		
+		//merge zombie knights into skelepede
+		/*if (zombieknights_length >= zombieknight_merge_amount && skelepedes_length < maximum_skelepedes)
+		{
+			zombieknights_length--;
+			Vec2f skelepede_spawn_pos = zombieknights[zombieknights_length].getPosition();
+			skelepede_spawn_pos.y = getMap().getMapDimensions().y + 100 + XORRandom(200);
+			server_CreateBlob("skelepede", -1, skelepede_spawn_pos);
+			skelepedes_length++;
+			for (u8 i = 0; i < zombieknight_merge_amount; i++)
+			{
+				CBlob@ zombieknight = zombieknights[zombieknights_length];
+				zombieknight.SetPlayerOfRecentDamage(null, 1.0f);
+				zombieknight.server_Die();
+
+				zombieknights_length--;
+				undead_count--;
+			}
+		}
+
+		if (undead_count < merge_zombies) return;*/
+	}
 }
