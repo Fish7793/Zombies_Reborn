@@ -4,43 +4,44 @@
 #include "ProceduralGeneration.as";
 #include "MinimapHook.as";
 #include "CustomTiles.as";
+#include "DummyCommons.as"
 
-namespace custom_colors
-{
-	enum color
-	{
-		ironore = 0xff705648,
-		coal = 0xff2E2E2E,
-		steel = 0xff879092,
-		iron = 0xff6B7273,
-		biron = 0xff3F4141
-	};
-}
+// namespace custom_colors
+// {
+// 	enum color
+// 	{
+// 		ironore = 0xff705648,
+// 		coal = 0xff2E2E2E,
+// 		steel = 0xff879092,
+// 		iron = 0xff6B7273,
+// 		biron = 0xff3F4141
+// 	};
+// }
 
-class ZombiePNGLoader : PNGLoader
-{
-	ZombiePNGLoader()
-	{
-		super();
-	}
+// class ZombiePNGLoader : PNGLoader
+// {
+// 	ZombiePNGLoader()
+// 	{
+// 		super();
+// 	}
 	
-	void handlePixel(const SColor &in pixel, int offset) override
-	{
-		PNGLoader::handlePixel(pixel, offset);
-		switch (pixel.color)
-		{
-			case custom_colors::ironore:  map.SetTile(offset, CMap::tile_ironore + XORRandom(4)); break;
-			case custom_colors::coal:     map.SetTile(offset, CMap::tile_coal + XORRandom(2));    break;
-			case custom_colors::steel:    map.SetTile(offset, CMap::tile_steel);                  break;
-			case custom_colors::iron:     map.SetTile(offset, CMap::tile_iron);                   break;
-			case custom_colors::biron:    map.SetTile(offset, CMap::tile_biron);                  break;
-		};
-	}
-};
+// 	void handlePixel(const SColor &in pixel, int offset) override
+// 	{
+// 		PNGLoader::handlePixel(pixel, offset);
+// 		switch (pixel.color)
+// 		{
+// 			case custom_colors::ironore:  map.SetTile(offset, CMap::tile_ironore + XORRandom(4)); break;
+// 			case custom_colors::coal:     map.SetTile(offset, CMap::tile_coal + XORRandom(2));    break;
+// 			case custom_colors::steel:    map.SetTile(offset, CMap::tile_steel);                  break;
+// 			case custom_colors::iron:     map.SetTile(offset, CMap::tile_iron);                   break;
+// 			case custom_colors::biron:    map.SetTile(offset, CMap::tile_biron);                  break;
+// 		};
+// 	}
+// };
 
 bool LoadMap(CMap@ map, const string& in fileName)
 {
-	ZombiePNGLoader loader();
+	PNGLoader loader();
 
 	map.legacyTileMinimap = false;
 	
