@@ -4,6 +4,7 @@
 
 #include "Zombie_GlobalMessagesCommon.as";
 #include "Zombie_Statistics.as";
+#include "GetSurvivors.as";
 
 u16 days_to_survive = -1; //days players must survive to win, -1 to disable win condition
 
@@ -109,12 +110,12 @@ void onGameEnd(CRules@ this)
 	}
 }
 
-void onPlayerLeave(CRules@ this, CPlayer@ player)
+/*void onPlayerLeave(CRules@ this, CPlayer@ player)
 {
 	if (getPlayersCount() <= 1) return;
 
 	checkGameEnded(this, player);
-}
+}*/
 
 void onPlayerDie(CRules@ this, CPlayer@ victim, CPlayer@ attacker, u8 customData)
 {
@@ -127,7 +128,7 @@ void checkGameEnded(CRules@ this, CPlayer@ player)
 	if (dayNumber < 2) return;
 
 	//have all players died?
-	if (!isGameLost(player)) return;
+	if (getSurvivors().length > 0) return;
 
 	//make certain we only set game end once
 	if (this.getCurrentState() == GAME_OVER) return;
@@ -136,26 +137,4 @@ void checkGameEnded(CRules@ this, CPlayer@ player)
 	string[] inputs = {dayNumber+""};
 	getEndGameStatistics(this, @inputs);
 	server_SendGlobalMessage(this, 1, nextmap_seconds, inputs);
-}
-
-// Check if we lost the game
-const bool isGameLost(CPlayer@ player)
-{
-	bool noAlivePlayers = true;
-	
-	const u8 playerCount = getPlayerCount();
-	for (u8 i = 0; i < playerCount; i++)
-	{
-		CPlayer@ ply = getPlayer(i);
-		if (ply is null || ply is player) continue;
-		
-		CBlob@ plyBlob = ply.getBlob();
-		if (plyBlob !is null && !plyBlob.hasTag("undead") && !plyBlob.hasTag("dead"))
-		{
-			noAlivePlayers = false;
-			break;
-		}
-	}
-	
-	return noAlivePlayers;
 }
