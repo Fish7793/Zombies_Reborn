@@ -1,7 +1,9 @@
 //common bomber functionality
 
-#include "VehicleCommon.as"
-#include "ActivationThrowCommon.as"
+#include "VehicleCommon.as";
+#include "ActivationThrowCommon.as";
+#include "Hitters.as";
+#include "Upgrades.as";
 
 void onTick(CBlob@ this)
 {
@@ -61,29 +63,105 @@ void Vehicle_BomberControls(CBlob@ this, VehicleInfo@ v)
 	if (this.isOnGround()) volume *= 0.95f;
 	sprite.SetEmitSoundVolume(volume);
 	
-	Vehicle_FlyerControls(this, blob, flyer, v);
+	Vehicle_FlyerControlsCustom(this, blob, flyer, v);
 	
 	this.AddForce(Vec2f(0, v.fly_speed * v.fly_amount));
 	
 	if (blob is null && v.fly_amount > 0.0f) v.fly_amount *= 0.998f;
 }
 
+void Vehicle_FlyerControlsCustom(CBlob@ this, CBlob@ blob, AttachmentPoint@ ap, VehicleInfo@ v)
+{
+	f32 moveForce = v.move_speed;
+	const f32 turnSpeed = v.turn_speed;
+	const Vec2f vel = this.getVelocity();
+	f32 flyAmount = v.fly_amount;
+	Vec2f force;
+	
+	const bool upgraded = hasUpgrade(Upgrade::FlightTuning);
+
+	// fly up/down
+	const bool up = ap.isKeyPressed(key_action1);
+	const bool down = ap.isKeyPressed(key_action2) || ap.isKeyPressed(key_down);
+	if (up || down)
+	{
+		const f32 flight = 0.3f * (upgraded ? 1.25f : 1.0f);
+		if (up)
+		{
+			flyAmount = Maths::Min(flyAmount + flight / getTicksASecond(), 1.0f);
+		}
+		else
+		{
+			flyAmount = Maths::Max(flyAmount - flight / getTicksASecond(), 0.5f);
+		}
+
+		v.fly_amount = flyAmount;
+	}
+
+	// fly left/right
+	const bool left = ap.isKeyPressed(key_left);
+	const bool right = ap.isKeyPressed(key_right);
+	if (left)
+	{
+		force.x -= moveForce;
+		if (vel.x < -turnSpeed)
+		{
+			this.SetFacingLeft(true);
+		}
+	}
+
+	if (right)
+	{
+		force.x += moveForce;
+		if (vel.x > turnSpeed)
+		{
+			this.SetFacingLeft(false);
+		}
+	}
+
+	if (left || right)
+	{
+		if (upgraded) force *= 1.25f;
+		this.AddForce(force);
+	}
+}
+
 void HandleBombing(CBlob@ this)
 {
 	CInventory@ inv = this.getInventory();
-	if (inv.getItemsCount() <= 0) return;
-
-	this.getSprite().PlaySound("bridge_open", 1.0f, 1.0f);
-	this.set_u32("last_drop", getGameTime() + 30);
-
-	if (isServer())
+	const int items_count = inv.getItemsCount();
+	if (items_count <= 0) return;
+	
+	for (u16 i = 0; i < items_count; i++)
 	{
-		CBlob@ item = inv.getItem(0);
+		CBlob@ item = inv.getItem(i);
+		if (item.getName() == "mat_arrows") continue;
+		
+		this.getSprite().PlaySound("bridge_open", 1.0f, 1.0f);
+		this.set_u32("last_drop", getGameTime() + 30);
+
+		if (!isServer()) return;
+
 		if (item.getName() == "mat_bombs")
 		{
 			CBlob@ blob = server_CreateBlob("bomb", this.getTeamNum(), this.getPosition() + Vec2f(0, 12));
 			if (blob !is null)
 			{
+				item.server_Die();
+			}
+		}
+		else if (item.getName() == "mat_waterbombs")
+		{
+			CBlob@ blob = server_CreateBlob("waterbomb", this.getTeamNum(), this.getPosition() + Vec2f(0, 12));
+			if (blob !is null)
+			{
+				blob.set_f32("map_damage_ratio", 0.0f);
+				blob.set_f32("explosive_damage", 0.0f);
+				blob.set_f32("explosive_radius", 92.0f);
+				blob.set_bool("map_damage_raycast", false);
+				blob.set_string("custom_explosion_sound", "/GlassBreak");
+				blob.set_u8("custom_hitter", Hitters::water);
+				blob.Tag("splash ray cast");
 				item.server_Die();
 			}
 		}
@@ -96,6 +174,7 @@ void HandleBombing(CBlob@ this)
 				server_Activate(item);
 			}
 		}
+		break;
 	}
 }
 

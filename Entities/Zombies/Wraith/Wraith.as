@@ -32,9 +32,6 @@ void onInit(CBlob@ this)
 	this.set_bool("map_damage_raycast", true);
 	this.set_s32("auto_enrage_time", getGameTime() + TIME_TO_ENRAGE + XORRandom(TIME_TO_ENRAGE / 2));
 	//
-
-	this.getCurrentScript().runFlags |= Script::tick_not_attached;
-	this.getCurrentScript().removeIfTag = "dead";
 	
 	this.addCommandID("enrage_client");
 }
@@ -91,8 +88,10 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream@ params)
 {
 	if (cmd == this.getCommandID("enrage_client") && isClient())
 	{
-		const bool enrage = params.read_bool();
-		const bool stun = params.read_bool();
+		bool enrage, stun;
+		if (!params.saferead_bool(enrage)) return;
+		if (!params.saferead_bool(stun)) return;
+
 		if (enrage)
 		{
 			this.getSprite().PlaySound("/WraithDie");

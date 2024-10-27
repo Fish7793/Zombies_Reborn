@@ -80,6 +80,12 @@ void SetupProductionSet()
 		production_set.push_back(tech);
 	}
 	{
+		Production tech("Big Bombs", 19);
+		AddRequirement(tech.reqs, "blob", "mat_gold", "Gold", 80);
+		tech.addProductionItem("bigbomb", "Big Bombs", "", 30, 3);
+		production_set.push_back(tech);
+	}
+	{
 		Production tech("Mines", 18);
 		AddRequirement(tech.reqs, "blob", "mat_gold", "Gold", 50);
 		tech.addProductionItem("mine", "Mines", "", 20, 4);
@@ -95,13 +101,13 @@ void SetupProductionSet()
 	{
 		Production tech("Water Ammo", FactoryFrame::water_ammo);
 		AddRequirement(tech.reqs, "blob", "mat_gold", "Gold", 25);
-		tech.addProductionItem("mat_waterarrows", "Water Arrows", "", 25, 3);
-		tech.addProductionItem("mat_waterbombs", "Water Bombs", "", 25, 3);
+		tech.addProductionItem("mat_waterarrows", "Water Arrows", "", 15, 3);
+		tech.addProductionItem("mat_waterbombs", "Water Bombs", "", 15, 3);
 		production_set.push_back(tech);
 	}
 	{
 		Production tech("Bomb Arrows", FactoryFrame::expl_ammo);
-		AddRequirement(tech.reqs, "blob", "mat_gold", "Gold", 50);
+		AddRequirement(tech.reqs, "blob", "mat_gold", "Gold", 35);
 		tech.addProductionItem("mat_bombarrows", "Bomb Arrows", "", 35, 4);
 		production_set.push_back(tech);
 	}
@@ -197,7 +203,9 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream@ params)
 		CInventory@ inv = caller.getInventory();
 		if (inv is null) return;
 
-		const u8 index = params.read_u8();
+		u8 index;
+		if (!params.saferead_u8(index)) return;
+
 		if (index >= production_set.length)
 		{
 			error("Production Set length does not match index! :: Factory.as, server_upgrade_factory");
@@ -235,7 +243,9 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream@ params)
 	}
 	else if (cmd == this.getCommandID("client_upgrade_factory") && isClient())
 	{
-		const u8 index = params.read_u8();
+		u8 index;
+		if (!params.saferead_u8(index)) return;
+
 		if (index >= production_set.length)
 		{
 			error("Production Set length does not match index! :: Factory.as, client_upgrade_factory");
@@ -256,8 +266,6 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream@ params)
 void onAssignWorker(CBlob@ this, CBlob@ worker)
 {
 	SetStandardWorkerPosition(this, worker);
-	
-	this.server_AttachTo(worker, "WORKER");
 
 	this.getSprite().PlaySound("/PowerUp.ogg");
 	this.set_bool("can produce", true);
@@ -288,15 +296,4 @@ void onUnassignWorker(CBlob@ this, CBlob@ worker)
 
 	this.getSprite().PlaySound("/PowerDown.ogg");
 	this.set_bool("can produce", false);
-}
-
-void SetStandardWorkerPosition(CBlob@ this, CBlob@ worker)
-{
-	AttachmentPoint@ ap = this.getAttachments().getAttachmentPoint("WORKER");
-	Random rand(this.getNetworkID() + worker.getNetworkID());
-	const f32 width = int(rand.NextRanged(this.getWidth()*0.5f)) - (this.getWidth() * 0.25f);
-	Vec2f offset = Vec2f(width, (this.getHeight() - worker.getHeight()) * 0.5f);
-
-	ap.offsetZ = 25.0f;
-	ap.offset = offset;
 }

@@ -46,6 +46,7 @@ void addCommonBuilderBlocks(BuildBlock[][]@ blocks, int team_num = 0, const stri
 	AddIconToken("$iron_block_ZF$", "World.png", Vec2f(8, 8), CMap::tile_iron);
 	AddIconToken("$biron_block_ZF$", "World.png", Vec2f(8, 8), CMap::tile_biron);
 	AddIconToken("$iron_platform_ZF$", "IronPlatform.png", Vec2f(8, 8), 0);
+	AddIconToken("$iron_spikes_ZF$", "IronSpikes.png", Vec2f(8, 8), 0);
 	AddIconToken("$obstructor_ZF$", "Obstructor.png", Vec2f(8, 8), 8);
 
 	BuildBlock[] page_0;
@@ -132,6 +133,11 @@ void addCommonBuilderBlocks(BuildBlock[][]@ blocks, int team_num = 0, const stri
 		AddRequirement(b.reqs, "blob", "mat_ironingot", "Iron Ingot", 3);
 		blocks[0].push_back(b);
 	}
+	{
+		BuildBlock b(0, "iron_spikes", "$iron_spikes_ZF$", Translate::IronSpikes);
+		AddRequirement(b.reqs, "blob", "mat_ironingot", "Iron Ingot", 3);
+		blocks[0].push_back(b);
+	}
 	//lantern is useful enough. no real reason to add the fireplace
 	/*{
 		BuildBlock b(0, "fireplace", "$fireplace$", "Campfire");
@@ -145,7 +151,7 @@ void addCommonBuilderBlocks(BuildBlock[][]@ blocks, int team_num = 0, const stri
 	BuildBlock[] page_1;
 	blocks.push_back(page_1);
 	{
-		BuildBlock b(0, "windmill", getTeamIcon("windmill", "WindMill.png", team_num, Vec2f(64, 102), 1), Translate::Windmill);
+		BuildBlock b(0, "windmill", getTeamIcon("windmill", "WindMill.png", team_num, Vec2f(64, 64), 0), Translate::Windmill);
 		AddRequirement(b.reqs, "blob", "mat_wood", "Wood", 200);
 		AddRequirement(b.reqs, "blob", "mat_stone", "Stone", 250);
 		b.buildOnGround = true;
@@ -184,16 +190,17 @@ void addCommonBuilderBlocks(BuildBlock[][]@ blocks, int team_num = 0, const stri
 		b.size.Set(56, 40);
 		blocks[1].push_back(b);
 	}
-	/*{
-		BuildBlock b(0, "library", getTeamIcon("library", "LibraryIcon.png", team_num, Vec2f(32, 19)), Translate::Library);
+	{
+		BuildBlock b(0, "library", getTeamIcon("library", "Library.png", team_num, Vec2f(56, 40)), Translate::Library);
 		AddRequirement(b.reqs, "blob", "mat_wood", "Wood\n", 300);
 		AddRequirement(b.reqs, "blob", "mat_stone", "Stone", 150);
 		AddRequirement(b.reqs, "blob", "mat_gold", "Gold", 50);
+		AddRequirement(b.reqs, "no more", "library", "Library", 1);
 		b.buildOnGround = true;
 		b.size.Set(56, 40);
 		blocks[1].push_back(b);
-	}*/
-
+	}
+	
 	BuildBlock[] page_2;
 	blocks.push_back(page_2);
 	{
@@ -252,9 +259,6 @@ void addCommonBuilderBlocks(BuildBlock[][]@ blocks, int team_num = 0, const stri
 		AddRequirement(b.reqs, "blob", "mat_stone", "Stone", 20);
 		blocks[2].push_back(b);
 	}
-
-	// BuildBlock[] page_3;
-	// blocks.push_back(page_3);
 	{
 		BuildBlock b(0, "lever", "$lever$", "Lever");
 		AddRequirement(b.reqs, "blob", "mat_wood", "Wood", 10);
@@ -282,9 +286,6 @@ void addCommonBuilderBlocks(BuildBlock[][]@ blocks, int team_num = 0, const stri
 		AddRequirement(b.reqs, "blob", "mat_stone", "Stone", 40);
 		blocks[2].push_back(b);
 	}
-
-	// BuildBlock[] page_4;
-	// blocks.push_back(page_4);
 	{
 		BuildBlock b(0, "lamp", "$lamp$", "Lamp");
 		AddRequirement(b.reqs, "blob", "mat_wood", "Wood", 10);
@@ -319,7 +320,7 @@ void addCommonBuilderBlocks(BuildBlock[][]@ blocks, int team_num = 0, const stri
 		blocks[2].push_back(b);
 	}
 	{
-		BuildBlock b(0, "obstructor", "$obstructor$", "Obstructor");
+		BuildBlock b(0, "obstructor", "$obstructor_ZF$", "Obstructor");
 		AddRequirement(b.reqs, "blob", "mat_stone", "Stone", 40);
 		blocks[2].push_back(b);
 	}

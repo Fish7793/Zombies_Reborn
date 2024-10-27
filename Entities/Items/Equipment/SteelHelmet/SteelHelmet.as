@@ -2,6 +2,9 @@
 #include "RunnerTextures.as";
 #include "RunnerCommon.as";
 #include "Hitters.as";
+#include "Upgrades.as";
+
+const u8 helmet_variations = 3;
 
 void onInit(CBlob@ this)
 {
@@ -13,11 +16,20 @@ void onInit(CBlob@ this)
 	addOnUnequip(this, @OnUnequip);
 	addOnTickEquipped(this, @onTickEquipped);
 	addOnHitOwner(this, @onHitOwner);
+	
+	for (u8 i = 0; i < helmet_variations; i++)
+	{
+		AddIconToken("$steelhelmet_"+i+"$", "SteelHelmet.png", Vec2f(16, 16), i, 0);
+	}
+	
+	this.inventoryIconFrame = this.getNetworkID() % helmet_variations;
+	this.getSprite().SetFrame(this.inventoryIconFrame);
+	this.set_string("equipment_icon", "$steelhelmet_"+this.inventoryIconFrame+"$");
 }
 
 void OnEquip(CBlob@ this, CBlob@ equipper)
 {
-	LoadNewHead(equipper, 170); //170 + (this.getNetworkID() % 3)
+	LoadNewHead(equipper, 170 + this.inventoryIconFrame);
 	equipper.Tag("steel helmet");
 }
 
@@ -31,11 +43,12 @@ void onTickEquipped(CBlob@ this, CBlob@ equipper)
 {
 	RunnerMoveVars@ moveVars;
 	if (!equipper.get("moveVars", @moveVars)) return;
+	
+	if (hasUpgrade(Upgrade::LightArmor)) return;
 
 	//slow down player
 	moveVars.walkFactor *= 0.94f;
 	//moveVars.jumpFactor *= 0.97f;
-	//moveVars.canVault = false;
 }
 
 f32 onHitOwner(CBlob@ this, CBlob@ equipper, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitterBlob, u8 customData)
