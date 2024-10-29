@@ -136,7 +136,7 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream@ params)
 	if (cmd == this.getCommandID("client_produce_item") && isClient())
 	{
 		u8 index;
-		if (!params.saferead_u8(index)) return;
+		if (!params.saferead_u8(index)) { error("Failed to produce item [0] : "+this.getNetworkID()); return; }
 
 		if (index >= production.production_items.length)
 		{
@@ -144,7 +144,7 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream@ params)
 			return;
 		}
 		ProductionItem@ item = production.production_items[index];
-		if (!params.saferead_u32(item.next_time_to_produce)) return;
+		if (!params.saferead_u32(item.next_time_to_produce)) { error("Failed to produce item [1] : "+this.getNetworkID()); return; }
 
 		const string sound = this.exists("produce sound") ? this.get_string("produce sound") : "BombMake.ogg";
 		this.getSprite().PlaySound(sound);
@@ -152,7 +152,7 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream@ params)
 	else if (cmd == this.getCommandID("client_set_produce_time") && isClient())
 	{
 		u8 index;
-		if (!params.saferead_u8(index)) return;
+		if (!params.saferead_u8(index)) { error("Failed to set produce time [0] : "+this.getNetworkID()); return; }
 
 		if (index >= production.production_items.length)
 		{
@@ -160,7 +160,7 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream@ params)
 			return;
 		}
 		ProductionItem@ item = production.production_items[index];
-		if (!params.saferead_u32(item.next_time_to_produce)) return;
+		if (!params.saferead_u32(item.next_time_to_produce)) { error("Failed to set produce time [1] : "+this.getNetworkID()); return; }
 	}
 }
 
@@ -286,6 +286,16 @@ void onSendCreateData(CBlob@ this, CBitStream@ stream)
 
 bool onReceiveCreateData(CBlob@ this, CBitStream@ stream)
 {
+	if (!UnserializeProduction(this, stream))
+	{
+		error("Failed to access production! : "+this.getName()+" : "+this.getNetworkID());
+		return false;
+	}
+	return true;
+}
+
+bool UnserializeProduction(CBlob@ this, CBitStream@ stream)
+{
 	bool sendData = false;
 	if (!stream.saferead_bool(sendData)) return false;
 	if (!sendData) return true;
@@ -323,6 +333,6 @@ bool onReceiveCreateData(CBlob@ this, CBitStream@ stream)
 	}
 	
 	this.set("production", @production);
-
+	
 	return true;
 }

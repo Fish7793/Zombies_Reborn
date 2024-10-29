@@ -55,7 +55,7 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream@ params)
 		if (!hasAvailableWorkerSlots(this)) return;
 
 		u16 worker_netid;
-		if (!params.saferead_netid(worker_netid)) return;
+		if (!params.saferead_netid(worker_netid))  { error("Failed to assign worker! [0] : "+this.getNetworkID()); return; }
 
 		AssignWorker(this, worker_netid);
 		Client_AttachWorker(this, worker_netid);
@@ -63,7 +63,7 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream@ params)
 	else if (cmd == this.getCommandID("client_attach_worker") && isClient())
 	{
 		u16 worker_netid;
-		if (!params.saferead_netid(worker_netid)) return;
+		if (!params.saferead_netid(worker_netid)) { error("Failed to assign worker! [1] : "+this.getNetworkID()); return; }
 
 		AssignWorker(this, worker_netid);
 	}
@@ -84,7 +84,7 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream@ params)
 	else if (cmd == this.getCommandID("client_detach_worker") && isClient())
 	{
 		u16 worker_netid;
-		if (!params.saferead_netid(worker_netid)) return;
+		if (!params.saferead_netid(worker_netid)) { error("Failed to unassign worker! [0] : "+this.getNetworkID()); return; }
 
 		UnassignWorker(this, worker_netid);
 	}
@@ -101,7 +101,7 @@ void onDie(CBlob@ this)
 
 void onSendCreateData(CBlob@ this, CBitStream@ stream)
 {
-	u16[]@ netids;
+	u16[] netids;
 	this.get("assigned netids", @netids);
 	
 	stream.write_u8(netids.length);
@@ -112,6 +112,16 @@ void onSendCreateData(CBlob@ this, CBitStream@ stream)
 }
 
 bool onReceiveCreateData(CBlob@ this, CBitStream@ stream)
+{
+	if (!UnserializeAssigned(this, stream))
+	{
+		error("Failed to access assigned workers! : "+this.getName()+" : "+this.getNetworkID());
+		return false;
+	}
+	return true;
+}
+
+bool UnserializeAssigned(CBlob@ this, CBitStream@ stream)
 {
 	u8 netids_length;
 	if (!stream.saferead_u8(netids_length)) return false;
@@ -125,6 +135,6 @@ bool onReceiveCreateData(CBlob@ this, CBitStream@ stream)
 	}
 	
 	this.set("assigned netids", netids);
-	
+
 	return true;
 }

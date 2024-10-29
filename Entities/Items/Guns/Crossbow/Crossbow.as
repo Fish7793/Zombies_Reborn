@@ -104,8 +104,7 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream@ params)
 
 		crossbow.arrow_type = arrowType;
 
-		if (crossbow.loaded)
-			CreateArrow(this, holder, arrowPos, arrowVel, arrowType);
+		CreateArrow(this, holder, arrowPos, arrowVel, arrowType);
 
 		crossbow.loaded = false;
 
@@ -241,26 +240,34 @@ void onAttach(CBlob@ this, CBlob@ attached, AttachmentPoint @attachedPoint)
 	}
 }
 
-void onSendCreateData(CBlob@ this, CBitStream@ params)
+void onSendCreateData(CBlob@ this, CBitStream@ stream)
 {
 	CrossbowInfo@ crossbow;
 	if (!this.get("crossbowInfo", @crossbow)) return;
 
-	params.write_s8(crossbow.charge_time);
-	params.write_u8(crossbow.charge_state);
-	params.write_u8(crossbow.arrow_type);
-	params.write_bool(crossbow.loaded);
+	stream.write_s8(crossbow.charge_time);
+	stream.write_u8(crossbow.charge_state);
+	stream.write_u8(crossbow.arrow_type);
+	stream.write_bool(crossbow.loaded);
 }
 
-bool onReceiveCreateData(CBlob@ this, CBitStream@ params)
+bool UnserializeCrossbowInfo(CBlob@ this, CBitStream@ stream)
 {
 	CrossbowInfo@ crossbow;
 	if (!this.get("crossbowInfo", @crossbow)) return false;
-	
-	if (!params.saferead_s8(crossbow.charge_time)) return false;
-	if (!params.saferead_u8(crossbow.charge_state)) return false;
-	if (!params.saferead_u8(crossbow.arrow_type)) return false;
-	if (!params.saferead_bool(crossbow.loaded)) return false;
+	if (!stream.saferead_s8(crossbow.charge_time))  return false;
+	if (!stream.saferead_u8(crossbow.charge_state)) return false;
+	if (!stream.saferead_u8(crossbow.arrow_type))   return false;
+	if (!stream.saferead_bool(crossbow.loaded))     return false;
+	return true;
+}
 
+bool onReceiveCreateData(CBlob@ this, CBitStream@ stream)
+{
+	if (!UnserializeCrossbowInfo(this, stream))
+	{
+		error("Failed to access crossbow info! : "+this.getNetworkID());
+		return false;
+	}
 	return true;
 }

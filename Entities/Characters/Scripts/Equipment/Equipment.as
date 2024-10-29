@@ -1,6 +1,7 @@
 //Gingerbeard @ August 9, 2024
 
 #include "EquipmentCommon.as"
+#include "Zombie_Translation.as";
 
 const string[] equipment =
 {
@@ -44,13 +45,13 @@ void onCreateInventoryMenu(CBlob@ this, CBlob@ forBlob, CGridMenu@ gridmenu)
 		
 		if (carried !is null && canEquip(carried, i))
 		{
-			hover = "Equip "+carried.getInventoryName();
+			hover = Translate::Equip.replace("{ITEM}", carried.getInventoryName());
 		}
 		CBlob@ equipped = getBlobByNetworkID(ids[i]);
 		if (equipped !is null)
 		{
 			icon = equipped.exists("equipment_icon") ? equipped.get_string("equipment_icon") : "$"+equipped.getName()+"$";
-			hover = "Unequip "+equipped.getInventoryName();
+			hover = Translate::Unequip.replace("{ITEM}", equipped.getInventoryName());
 		}
 
 		CBitStream params;
@@ -97,7 +98,7 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream@ params)
 		u16 unequipped = 0;
 
 		u8 index;
-		if (!params.saferead_u8(index)) return;
+		if (!params.saferead_u8(index)) { error("Failed to access equipment index : "+this.getNetworkID()); return; }
 		
 		//unequip
 		CBlob@ equippedblob = getBlobByNetworkID(ids[index]);
@@ -134,8 +135,8 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream@ params)
 	else if (cmd == this.getCommandID("client_equip") && isClient())
 	{
 		u16 unequipped_netid, equipped_netid;
-		if (!params.saferead_netid(unequipped_netid)) return;
-		if (!params.saferead_netid(equipped_netid)) return;
+		if (!params.saferead_netid(unequipped_netid)) { error("Failed to access unequipped! : "+this.getNetworkID()); return; }
+		if (!params.saferead_netid(equipped_netid))   { error("Failed to access equipped! : "+this.getNetworkID());   return; } 
 
 		CBlob@ unequippedblob = getBlobByNetworkID(unequipped_netid);
 		if (unequippedblob !is null)
@@ -144,7 +145,7 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream@ params)
 		if (equippedblob !is null)
 			EquipBlob(this, equippedblob);
 
-		UnserializeEquipment(this, params);
+		if (!UnserializeEquipment(this, params)) { error("Failed to access equipment [3] : "+this.getName()+" : "+this.getNetworkID()); return; }
 	}
 }
 
@@ -279,46 +280,52 @@ void EquipToNewPlayerBlob(CBlob@ this, u16[]@ ids)
 
 ///NETWORK
 
-void SerializeEquipment(u16[] ids, CBitStream@ params)
+void SerializeEquipment(const u16[]&in ids, CBitStream@ stream)
 {
-	params.write_u8(ids.length);
+	stream.write_u8(ids.length);
 	for (u8 i = 0; i < ids.length; i++)
 	{
-		params.write_netid(ids[i]);
+		stream.write_netid(ids[i]);
 	}
 }
 
-bool UnserializeEquipment(CBlob@ this, CBitStream@ params)
+bool UnserializeEquipment(CBlob@ this, CBitStream@ stream)
 {
 	u8 ids_length;
-	if (!params.saferead_u8(ids_length)) return false;
+	if (!stream.saferead_u8(ids_length)) return false;
 	
 	u16[] ids(ids_length);
 	for (u8 i = 0; i < ids_length; i++)
 	{
-		u16 id;
-		if (!params.saferead_netid(id)) return false;
-		ids[i] = id; //copy over netids
+		if (!stream.saferead_netid(ids[i])) return false;
 	}
 
 	this.set("equipment_ids", ids);
 	return true;
 }
 
-void onSendCreateData(CBlob@ this, CBitStream@ params)
+void onSendCreateData(CBlob@ this, CBitStream@ stream)
 {
-	params.write_u32(this.getTickSinceCreated());
+	stream.write_u32(this.getTickSinceCreated());
 	u16[] ids;
 	if (this.get("equipment_ids", ids))
-		SerializeEquipment(ids, params);
+		SerializeEquipment(ids, stream);
 }
 
-bool onReceiveCreateData(CBlob@ this, CBitStream@ params)
+bool onReceiveCreateData(CBlob@ this, CBitStream@ stream)
 {
 	u32 ticks_alive;
-	if (!params.saferead_u32(ticks_alive)) return false;
-	
-	if (!UnserializeEquipment(this, params)) return false;
+	if (!stream.saferead_u32(ticks_alive))
+	{
+		error("Failed to access equipment [0] : "+this.getName()+" : "+this.getNetworkID());
+		return false;
+	}
+
+	if (!UnserializeEquipment(this, stream))
+	{
+		error("Failed to access equipment [1] : "+this.getName()+" : "+this.getNetworkID());
+		return false;
+	}
 
 	if (ticks_alive > 0)
 	{

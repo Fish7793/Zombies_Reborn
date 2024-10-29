@@ -94,7 +94,7 @@ void SpawnZombies(CBlob@ this)
 			else if (r >= 75)  blobname = "zombieknight";  // 15%
 			else if (r >= 40)  blobname = "zombie";        // 35%
 			
-			//server_CreateBlob(blobname, -1, pos);
+			server_CreateBlob(blobname, -1, pos);
 		}
 	}
 }
@@ -178,6 +178,11 @@ void onSendCreateData(CBlob@ this, CBitStream@ stream)
 
 bool onReceiveCreateData(CBlob@ this, CBitStream@ stream)
 {
-	if (!stream.saferead_u16(maximum_zombies)) return false;
+	if (!stream.saferead_u16(maximum_zombies))
+	{
+		error("Failed to access maximum zombies for zombieportal");
+		return false;
+	}
+
 	return true;
 }

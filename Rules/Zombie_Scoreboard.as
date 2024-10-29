@@ -390,8 +390,9 @@ void managePages(Vec2f&in imageSize, Vec2f&in center)
 void drawPage(Vec2f&in imageSize, Vec2f&in center, const string&in header, Vec2f&in imagePos, const u8&in pageNum = 0)
 {
 	GUI::DrawIcon("Page"+(pageNum+1)+".png", imagePos);
-	drawTextWithFont(header, center - Vec2f(0, imageSize.y - 50), "big font");
-	drawTextWithFont(page_tips[pageNum], center - Vec2f(0, imageSize.y - 140), "medium font");
+	const bool isRussian = g_locale == "ru";
+	drawTextWithFont(header, center - Vec2f(0, imageSize.y - 50), isRussian ? "vinque" : "big font");
+	drawTextWithFont(page_tips[pageNum], center - Vec2f(0, imageSize.y - 140), isRussian ? "anticva" : "medium font");
 }
 
 void drawTextWithFont(const string&in text, const Vec2f&in pos, const string&in font)
@@ -486,15 +487,28 @@ void drawStagingPopup(Vec2f&in pos)
 	#endif
 
 	GUI::SetFont("menu");
-	const string info = "Staging\n\n"+
-	                    "Zombie Fortress is best\nsuited to be played\n"+
-	                    "with a staging client.\n\n"+
-	                    "What is Staging?\n"+
-	                    "Staging is a version of KAG\nwith incredible optimization.\n"+
-	                    "Switch to staging for\nmajor performance improvement!\n\n"+
-	                    "How to get staging on steam:\n"+
-	                    "\nKAG properties -> Betas ->\nEnter transhumandesign ->\nChoose staging-test\n\n"+
-	                    "Visit the discord\nfor additional information\nor if you are a non-steam player.";
+	string info = "Staging\n\n"+
+	              "Zombie Fortress is best\nsuited to be played\n"+
+	              "with a staging client.\n\n"+
+	              "What is Staging?\n"+
+	              "Staging is a version of KAG\nwith incredible optimization.\n"+
+	              "Switch to staging for\nmajor performance improvement!\n\n"+
+	              "How to get staging on steam:\n"+
+	              "\nKAG properties -> Betas ->\nEnter transhumandesign ->\nChoose staging-test\n\n"+
+	              "Visit the discord\nfor additional information\nor if you are a non-steam player.";
+	
+	if (g_locale == "ru")
+	{
+		info = "Staging\n\n"+
+		       "Зомби Крепости лучше всего\nподходит для того чтобы сыграть\n"+
+		       "Используя 'staging client'.\n\n"+
+		       "Что такое 'Staging'?\n"+
+		       "Staging это версия оригинальной игры KAG\nс потрясающей оптимизацией.\n"+
+		       "Попробуйте 'staging' для\nувеличения производительности!\n\n"+
+		       "Как получить 'staging' в стиме:\n"+
+		       "\nKAG свойства -> Бета-версии ->\nВведите transhumandesign ->\nВыберите 'staging-test'\n\n"+
+		       "Приходите в discord\nдля дополнительной информации\n если же вы не являетесь игроком steam.";
+	}
 	Vec2f dim;
 	GUI::GetTextDimensions(info, dim);
 	
