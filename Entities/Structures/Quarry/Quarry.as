@@ -5,9 +5,9 @@
 #include "Zombie_Translation.as"
 #include "Zombie_TechnologyCommon.as"
 
-const string[] fuel_names = {"mat_coal", "mat_wood"};
-const string[] fuel_icons = {"mat_coal_icon", "mat_wood"};
-const int[] fuel_strength = { 3, 1 };
+const string[] fuel_names = {"mat_wood", "mat_coal"};
+const string[] fuel_icons = {"mat_wood", "mat_coal_icon"};
+const int[] fuel_strength = { 1, 4 };
 
 //balance
 const int input = 100;					// input cost in fuel
@@ -17,9 +17,9 @@ const int conversion_frequency = 30;	// how often to convert, in seconds
 const int min_input = Maths::Ceil(input / initial_output);
 
 //fuel levels for animation
-const int max_fuel = 500;
-const int mid_fuel = 300;
-const int low_fuel = 150;
+const int max_fuel = 1000;
+const int mid_fuel = 600;
+const int low_fuel = 250;
 
 //property names
 const string fuel_prop = "fuel_level";
@@ -193,7 +193,12 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream@ params)
 
 void onCollision(CBlob@ this, CBlob@ blob, bool solid)
 {
-	if (blob is null || blob.getName() != "mat_wood") return;
+	if (blob is null) return;
+
+	const string fuel_name = fuel_names[0];
+	const int fuel_amount = fuel_strength[0];
+	
+	if (blob.getName() != fuel_name) return;
 
 	const int requestedAmount = Maths::Min(250, max_fuel - this.get_s16(fuel_prop));
 	if (requestedAmount <= 0) return;
@@ -208,7 +213,7 @@ void onCollision(CBlob@ this, CBlob@ blob, bool solid)
 			blob.server_SetQuantity(quantity - amountToStore);
 			if (amountToStore >= quantity) blob.server_Die();
 
-			this.add_s16(fuel_prop, amountToStore * fuel_strength[1]);
+			this.add_s16(fuel_prop, amountToStore * fuel_amount);
 			this.Sync(fuel_prop, true);
 		}
 	}
