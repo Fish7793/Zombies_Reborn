@@ -54,15 +54,15 @@ void onInit(CBlob@ this)
 		AddRequirement(s.requirements, "coin", "", "Coins", 100);
 	}
 	{
-		SaleItem s(shop.items, buy("Gold", 50), "$COIN$", "coin", sell2("Gold", 50, 600), ItemType::coin, 600);
+		SaleItem s(shop.items, sell("Gold", 50), "$COIN$", "coin", sell2("Gold", 50, 600), ItemType::coin, 600);
 		AddRequirement(s.requirements, "blob", "mat_gold", "Gold", 50);
 	}
 	{
-		SaleItem s(shop.items, buy("Stone", 250), "$COIN$", "coin", buy2("Stone", 250, 200), ItemType::coin, 200);
+		SaleItem s(shop.items, sell("Stone", 250), "$COIN$", "coin", sell2("Stone", 250, 200), ItemType::coin, 200);
 		AddRequirement(s.requirements, "blob", "mat_stone", "Stone", 250);
 	}
 	{
-		SaleItem s(shop.items, sell("Wood", 250), "$COIN$", "coin", sell2("Wood", 250, 60), ItemType::coin, 50);
+		SaleItem s(shop.items, sell("Wood", 250), "$COIN$", "coin", sell2("Wood", 250, 50), ItemType::coin, 50);
 		AddRequirement(s.requirements, "blob", "mat_wood", "Wood", 250);
 	}
 	{
@@ -70,7 +70,7 @@ void onInit(CBlob@ this)
 		AddRequirement(s.requirements, "coin", "", "Coins", 300);
 	}
 	{
-		SaleItem s(shop.items, buy("Steak", 1), "$steak$", "steak", buy2("Steak", 1, 300));
+		SaleItem s(shop.items, buy("Steak", 1), "$steak$", "steak", buy2("Steak", 1, 230));
 		AddRequirement(s.requirements, "coin", "", "Coins", 230);
 	}
 	{
