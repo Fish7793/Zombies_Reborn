@@ -129,8 +129,8 @@ f32 getSwordDamagePercent()
 {
 	f32 percent = 1.0f;
 	Technology@[]@ TechTree = getTechTree();
-	if (hasTech(TechTree, Tech::Swords))    percent += 0.25f;
-	if (hasTech(TechTree, Tech::SwordsII))  percent += 0.25f;
+	if (hasTech(TechTree, Tech::Swords))    percent += 0.3f;
+	if (hasTech(TechTree, Tech::SwordsII))  percent += 0.3f;
 	return percent;
 }
 

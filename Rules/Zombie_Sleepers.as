@@ -34,9 +34,30 @@ void onPlayerLeave(CRules@ this, CPlayer@ player)
 	blob.set_string("sleeper_name", player.getUsername());
 	blob.set_u32("sleeper_time", getGameTime());
 	blob.Tag("sleeper");
+	blob.Sync("sleeper", true);
 	
 	if (isKnockable(blob))
 		setKnocked(blob, 255, true);
+}
+
+void onInit(CRules@ this)
+{
+	Reset(this);
+}
+
+void onRestart(CRules@ this)
+{
+	Reset(this);
+}
+
+void Reset(CRules@ this)
+{
+	//set players to any sleepers that were loaded on the map (saved map)
+	const u8 playerCount = getPlayerCount();
+	for (u8 i = 0; i < playerCount; i++)
+	{
+		onNewPlayerJoin(this, getPlayer(i));
+	}
 }
 
 void onNewPlayerJoin(CRules@ this, CPlayer@ player)
@@ -44,7 +65,7 @@ void onNewPlayerJoin(CRules@ this, CPlayer@ player)
 	/*string[]@ tokens = player.getUsername().split("~");
 	if (tokens.length <= 0) return;
 	const string username = tokens[0];*/
-	
+
 	const string username = player.getUsername();
 
 	CBlob@[] sleepers;
@@ -86,7 +107,24 @@ void WakeupSleeper(CBlob@ sleeper, CPlayer@ player)
 	sleeper.server_SetPlayer(player);
 	sleeper.set_string("sleeper_name", "");
 	sleeper.Untag("sleeper");
+	sleeper.Sync("sleeper", true);
 	
+	AttachmentPoint@ pickup = sleeper.getAttachments().getAttachmentPoint("PICKUP", false);
+	if (pickup !is null && pickup.getOccupied() !is null)
+	{
+		sleeper.server_DetachFrom(pickup.getOccupied());
+	}
+
+	if (sleeper.exists("sleeper_coins"))
+	{
+		const u16 coins = sleeper.get_u16("sleeper_coins");
+		if (coins > player.getCoins())
+		{
+			player.server_setCoins(coins);
+		}
+		sleeper.set_u16("sleeper_coins", 0);
+	}
+
 	//remove knocked
 	if (isKnockable(sleeper))
 	{
@@ -103,8 +141,8 @@ void KnockSleepers()
 	CBlob@[] sleepers;
 	if (!getBlobsByTag("sleeper", @sleepers)) return;
 	
-	const u8 sleepersLength = sleepers.length;
-	for (u8 i = 0; i < sleepersLength; i++)
+	const u16 sleepersLength = sleepers.length;
+	for (u16 i = 0; i < sleepersLength; i++)
 	{
 		CBlob@ sleeper = sleepers[i];
 		if (isKnockable(sleeper))
@@ -117,8 +155,8 @@ void UseSleepersAsRespawn(CRules@ this)
 	CBlob@[] sleepers;
 	if (!getBlobsByTag("sleeper", @sleepers)) return;
 	
-	const u8 sleepersLength = sleepers.length;
-	for (u8 i = 0; i < sleepersLength; i++)
+	const u16 sleepersLength = sleepers.length;
+	for (u16 i = 0; i < sleepersLength; i++)
 	{
 		CBlob@ sleeper = sleepers[i];
 		if (!sleeper.hasTag("dead") && sleeper.get_u32("sleeper_time") < getGameTime() - unused_time_required)

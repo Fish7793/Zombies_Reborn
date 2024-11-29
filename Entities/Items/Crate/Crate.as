@@ -37,6 +37,8 @@ Crate@[] base_presets =
 	
 	Crate("bomber",        7,  Vec2f(4, 4)),
 	Crate("armoredbomber", 7,  Vec2f(4, 4)),
+	Crate("lightballista", 0,  Vec2f(3, 3)),
+	Crate("cannon",        0,  Vec2f(3, 3)),
 	Crate("tank",          11, Vec2f(7, 4))
 };
 
@@ -544,7 +546,7 @@ void BoobyTrap(CBlob@ this, CBlob@ caller, CBlob@ mine)
 	}
 }
 
-void Unpack(CBlob@ this)
+void Unpack(CBlob@ this, const bool&in kill = true)
 {
 	if (!isServer() || this.hasTag("unpacked")) return;
 	
@@ -573,8 +575,11 @@ void Unpack(CBlob@ this)
 
 	this.Tag("unpacked");
 	this.set_s32("gold building amount", 0); // for crates with vehicles that cost gold
-	this.server_SetHealth(-1.0f); // TODO: wont gib on client
-	this.server_Die();
+	if (kill)
+	{
+		this.server_SetHealth(-1.0f); // TODO: wont gib on client
+		this.server_Die();
+	}
 }
 
 void FactoryTrackBlob(CBlob@ this, CBlob@ blob)
@@ -795,10 +800,10 @@ void onDie(CBlob@ this)
 	{
 		CParticle@ temp = makeGibParticle(fname, pos, vel + getRandomVelocity(90, 1 , 120), 9, 2 + i, Vec2f(16, 16), 2.0f, 20, "Sounds/material_drop.ogg", 0);
 	}
-	
-	if (isServer() && this.get_string("packed") == "sedgwick" && !this.hasTag("unpacked"))
+
+	if (!this.get_string("packed").isEmpty())
 	{
-		server_CreateBlob("sedgwick", 3, pos);
+		Unpack(this, false);
 	}
 }
 

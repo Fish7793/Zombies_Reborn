@@ -42,6 +42,12 @@ bool canPlaceNextTo(CMap@ map, const Tile &in tile)
 
 bool canPlaceOnTile(CMap@ map, Vec2f p, CBlob@ blob, TileType buildTile, Tile backTile)
 {
+	if (buildTile == CMap::tile_ground) //dirt can only be placed on existing dirt areas
+	{
+		const bool damaged_dirt = isTileBetween(backTile.type, CMap::tile_ground_d1, CMap::tile_ground_d0);
+		return map.isTileGroundBack(backTile.type) || damaged_dirt;
+	}
+
 	const bool solidbacktile = map.isTileSolid(backTile);
 	const bool solidbuildtile = isTileSolid(map, buildTile);
 	if (!solidbuildtile && solidbacktile)
@@ -77,7 +83,7 @@ bool isBuildableAtPos(CBlob@ this, Vec2f p, TileType buildTile, CBlob@ blob, boo
 	Tile up = map.getTile(offset - map.tilemapwidth);
 	Tile down = map.getTile(offset + map.tilemapwidth);
 
-	if (buildTile > 0 && blob is null && buildTile == map.getTile(offset).type)
+	if (buildTile > 0 && blob is null && buildTile == backtile.type)
 	{
 		sameTile = true;
 		return false;
@@ -253,7 +259,7 @@ f32 getMaxBuildDistance(CBlob@ this)
 
 void SetupBuildDelay(CBlob@ this)
 {
-	this.set_u32("build time", getGameTime());
+	this.set_u32("build time", 0);
 	this.set_u32("build delay", 7);
 	this.set_u32("warmup build delay", 4);
 }

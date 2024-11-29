@@ -52,6 +52,7 @@ namespace Translate
 	Sedgwick = Translate("Sedgwick the necromancer has appeared!",                      "Некромант Седжвик только что явился!"),
 	Migrant1 = Translate("A refugee has arrived!",                                      "Прибыл беженец!"),
 	Migrant2 = Translate("Refugees have arrived!",                                      "Беженцы прибывают!"),
+	Tim      = Translate("Tim has appeared!",                                           "Тим появился!"),
 
 	//stats
 	Stat0 = Translate("Total zombies killed: {INPUT}",   "Больше всех убивал зомби: {INPUT}"),
@@ -80,17 +81,18 @@ namespace Translate
 	ScrollMidas    = Translate("Scroll of Midas",                                                                                      "Свиток Мидаса"),
 
 	//builder
-	IronBlock      = Translate("Iron Block\nResistant to explosions.",                  "Железный блок\nВзрывоустойчивый Блок."),
-	IronBlockBack  = Translate("Back Iron Wall\nDurable Support.",                      "Железная стена\nПрочная опора."),
-	IronDoor       = Translate("Iron Door\nPlace next to walls.",                       "Железная дверь\nСтавьте возле стены."),
-	IronPlatform   = Translate("Iron Platform\nOne way platform",                       "Железная платформа\nОдносторонняя платформа."),
-	IronSpikes     = Translate("Iron Spikes\nDurable spikes",                           "Железные шипы\nПрочные шипы."),
-	Windmill       = Translate("Wind Mill\nA grain mill for producing flour.",          "Мельница\nЗерновая мельница для производства муки."),
-	Kitchen        = Translate("Kitchen\nCreate various foods for healing.",            "Кухня\nГотовьте различную еду для восстановления здоровья и сил."),
-	Forge          = Translate("Forge\nSmelt raw ore into ingots.",                     "Плавильня\nПереплавляет сырую руду в слитки."),
-	Nursery        = Translate("Nursery\nA plant nursery for agricultural purposes.",   "Рассадник\nРассадник для сельскохозяйственных культур."),
-	Armory         = Translate("Armory\nBuild weapons and change your class.",          "Оружейная\nСлужит для создания оружия из слитков, позволяет сменить класс."),
-	Library        = Translate("Library\nA place of study to obtain new technologies.", "Библиотека\nМесто хранения знаний и открытий, здесь можно освоить новые технологии."),
+	IronBlock      = Translate("Iron Block\nResistant to explosions",                  "Железный блок\nВзрывоустойчивый Блок"),
+	IronBlockBack  = Translate("Back Iron Wall\nDurable Support",                      "Железная стена\nПрочная опора"),
+	IronDoor       = Translate("Iron Door\nPlace next to walls",                       "Железная дверь\nСтавьте возле стены"),
+	IronPlatform   = Translate("Iron Platform\nOne way platform\nBlocks water",        "Железная платформа\nОдносторонняя платформа\nБлокирует воду"),
+	IronSpikes     = Translate("Iron Spikes\nDurable spikes",                          "Железные шипы\nПрочные шипы"),
+	Dirt           = Translate("Dirt\nPlace on existing dirt",                         "Грязь\nПоместить на существующую грязь"),
+	Windmill       = Translate("Wind Mill\nA grain mill for producing flour",          "Мельница\nЗерновая мельница для производства муки"),
+	Kitchen        = Translate("Kitchen\nCreate various foods for healing",            "Кухня\nГотовьте различную еду для восстановления здоровья и сил"),
+	Forge          = Translate("Forge\nSmelt raw ore into ingots",                     "Плавильня\nПереплавляет сырую руду в слитки"),
+	Nursery        = Translate("Nursery\nA plant nursery for agricultural purposes",   "Рассадник\nРассадник для сельскохозяйственных культур"),
+	Armory         = Translate("Armory\nBuild weapons and change your class",          "Оружейная\nСлужит для создания оружия из слитков, позволяет сменить класс"),
+	Library        = Translate("Library\nA place of study to obtain new technologies", "Библиотека\nМесто хранения знаний и открытий, здесь можно освоить новые технологии"),
 	
 	//workers
 	Worker         = Translate("Worker",                           "Работник"),
@@ -124,6 +126,7 @@ namespace Translate
 	LightBallista  = Translate("Light Ballista\nA portable ballista. Can be attached to some vehicles.",                              "Легкая баллиста\nПередвижная баллиста. Может устанавливаться на некоторые машины."),
 	Cannon         = Translate("Cannon\nA cannon that is capable of obliterating any foe. Can be attached to some vehicles.",         "Пушка\nПушка, способная уничтожить любого противника. Может устанавливаться на некоторые машины."),
 	Zeppelin       = Translate("Zeppelin\nA sky fortress with many accomodations on board. Functions as a respawn point.",            "Цеппелин\nНебесная крепость с множеством жилых помещений на борту. Служит точкой возрождения."),
+	Cannonballs    = Translate("Cannonballs\nCannonballs for the cannon.", "Пушечные ядра\nПушечные ядра для пушки."),
 
 	//archershop
 	MolotovArrows  = Translate("Molotov arrows\nFor incinerating the enemy.", "Стрелы Молотова\nДля испепеления врага."),
@@ -145,6 +148,7 @@ namespace Translate
 
 	//armory
 	Scythe         = Translate("Scythe\nA tool for cutting crops fast.\nAllows for grain auto-pickup.",                 "Коса\nИнструмент для быстрого срезания урожая.\nПозволяет поднямать зерна автоматически."),
+	Spear          = Translate("Spear\nA long polearm for stabbing from a distance.",                                   "Копье\nДлинное древковое оружие для нанесения ударов на расстоянии."),
 	Crossbow       = Translate("Crossbow\nFires any arrow type.\nHold right mouse button to reload.",                   "Арбалет\nСтреляет любыми стрелами\nЗажмите ПКМ, чтобы перезарядить."),
 	Musket         = Translate("Musket\nFires musket balls.\nHold right mouse button to reload.",                       "Мушкет\nСтреляет патронами для Мушкета.\nЗажмите ПКМ, чтобы перезарядить."),
 	MusketBalls    = Translate("Musket Balls\nAmmunition for the Musket.",                                              "Мушкетные пули\nПатроны для мушкета"),
@@ -184,6 +188,14 @@ namespace Translate
 	TradeScrollHealth   = Translate("This one can heal even the worst injuries.",               "Это может залечить даже самые тяжелые травмы."),
 	TradeScrollRepair   = Translate("This one will fix up whatever is nearby!",                 "Этот починит всё, что находится поблизости!"),
 
+	//tim
+	HolyGrenade     = Translate("Holy Hand Grenade\nDo mot askj me where I got this.,..",   "Святая ручная граната\nНе спрашивайте меня, откуда я это взял..."),
+	Tim0            = Translate("I'll be takinge my leave soonm,,..",                       "Я скоро уйду."),
+	Tim1            = Translate("Goodbye.",                                                 "Прощай."),
+	Tim2            = Translate("Be carefule withe that!!.",                                "Будьте с этим осторожны."),
+	Tim3            = Translate("Lotsa of valuables! for sale!",                            "Множество ценных вещей на продажу!"),
+	Tim4            = Translate("Hi!!! Buy my stuff! :D",                                   "Здравствуйте, я здесь, чтобы продать свои ценности. Приходите взглянуть!"),
+
 	//library
 	Researching     = Translate("Researching - {PERCENT}",      "Исследование - {PERCENT}"),
 	Paused          = Translate("Paused - {PERCENT}",           "Остановлено - {PERCENT}"),
@@ -213,8 +225,8 @@ namespace Translate
 	Milling         = Translate("Milling\nWind mills produce 10% more flour.",                       "Переработка зерна I\nВетряные мельницы производят на 10% больше муки."),
 	MillingII       = Translate("Milling II\nWind mills produce 20% more flour.",                    "Переработка зерна II\nВетряные мельницы производят на 20% больше муки."),
 	MillingIII      = Translate("Milling III\nWind mills produce 35% more flour.",                   "Переработка зерна III\nВетряные мельницы производят на 35% больше муки."),
-	Swords          = Translate("Sharpening Stone\nSwords deal +25% damage.",                        "Точильный rамень\nПравильно заточенные мечи наносят на +25% урона больше."),
-	SwordsII        = Translate("Damascus Steel\nSwords deal +25% damage.",                          "Дамасская cталь\nМатериал дает лезвию дополнительную остроту, прибавляя +25% к урону."),
+	Swords          = Translate("Sharpening Stone\nSwords deal +30% damage.",                        "Точильный rамень\nПравильно заточенные мечи наносят на +30% урона больше."),
+	SwordsII        = Translate("Damascus Steel\nSwords deal +30% damage.",                          "Дамасская cталь\nМатериал дает лезвию дополнительную остроту, прибавляя +30% к урону."),
 	LightArmor      = Translate("Lightweight Armor\nArmor encumbrance -50%.",                        "Легковесная броня\nПластичность и легкость брони увеличивает вашу скорость +50%."),
 	CombatPickaxes  = Translate("Combat Pickaxes\nPickaxes deal 2x damage.",                         "Боевые кирки\nКирки наносят в х2 больше урона."),
 	LightPickaxes   = Translate("Light Pickaxes\nPickaxe mining speed increased.",                   "Лёгкие кирки\nСкорость добычи с помощью кирки увеличена."),
@@ -236,15 +248,21 @@ namespace Translate
 	ShrapnelII      = Translate("Shrapnel II\nExplosives +25% damage.",                              "Шрапнель II\nВзрывы наносят +25% урона."),
 	HighExplosives  = Translate("High Explosives\nExplosives' radius increased.",                    "Усиленная взрывчатка\nРадиус действия взрывчатки увеличился."),
 	HolyWater       = Translate("Holy Water\nWater bomb radius and stun time 2x.",                   "Святая вода\nРадиус действия водяной бомбы и время оглушения увеличиваются в 2 раза."),
-	BlastShields    = Translate("Blast Shields\nShields are resistant to strong explosions.",        "Взрывоустойчивые щиты\nЩиты устойчивы к сильным взрывам."),
+	BlastShields    = Translate("Blast Shields\nShields negate all explosion damage.",               "Взрывоустойчивые щиты\nЩиты устойчивы к сильным взрывам."),
 	FlightTuning    = Translate("Flight Tuning\nAerial vehicles fly 25% faster.",                    "Регулировка полёта\nЛетательные машины летают на 25% быстрее."),
-	IronChassis     = Translate("Iron Chassis\nLand vehicles are 25% more durable.",                 "Железное шасси\nНаземные транспортные средства на 25% крепче."),
-	SteelChassis    = Translate("Steel Chassis\nLand vehicles are 35% more durable.",                "Стальное шасси\nНаземные транспортные средства на 35% крепче."),
+	IronChassis     = Translate("Iron Chassis\Vehicles are 25% more durable.",                       "Железное шасси\nТранспортные средства на 25% прочнее."),
+	SteelChassis    = Translate("Steel Chassis\nVehicles are 35% more durable.",                     "Стальное шасси\nТранспортные средства на 35% прочнее."),
 	TorsionWinch    = Translate("Torsion Winch\nSeige vehicles fire projectiles 35% farther.",       "Закрученная лебедка\nОсадные орудия стреляют снарядами на 35% дальше."),
 	SeigeCrank      = Translate("Seige Crank\nSeige vehicles fire 25% faster",                       "Рукоять для осадного орудия\nОсадные орудия стреляют на 25% быстрее."),
 	Regeneration    = Translate("Regeneration\nSurvivors heal half a heart every day.",              "Регенерация I\nВыжившие исцеляют половину сердца каждый день."),
 	RegenerationII  = Translate("Regeneration II\nSurvivors heal one heart every day.",              "Регенерация II\nВыжившие исцеляют по одному сердцу каждый день."),
-	RegenerationIII = Translate("Regeneration III\nSurvivors heal two hearts every day.",            "Регенерация III\nВыжившие исцеляют два сердца каждый день.");
+	RegenerationIII = Translate("Regeneration III\nSurvivors heal two hearts every day.",            "Регенерация III\nВыжившие исцеляют два сердца каждый день."),
+	Chainmail       = Translate("Chainmail\nKnights take -25% damage",                               ""),
+	ThermalHull     = Translate("Thermal Plating\nVehicles are immune to fire damage",               ""),
+	ThermalArmor    = Translate("Thermal Armor\nWearing a full set of armor nullifies fire damage.", ""),
+	LightSwords     = Translate("Light Swords\nUsing a sword is faster",                             ""),
+	Production      = Translate("Production\nFactories +25% production speed",                       ""),
+	ProductionII    = Translate("Production II\nFactories +25% production speed",                    "");
 }
 
 string name(const string&in translated)

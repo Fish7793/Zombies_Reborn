@@ -44,14 +44,15 @@ void Explode(CBlob@ this, f32 radius, f32 damage)
 	Sound::Play(sound, this.getPosition());
 	
 	Technology@[]@ TechTree = getTechTree();
-	const bool high_explosive = hasTech(TechTree, Tech::HighExplosives);
-	const f32 radius_percent = high_explosive && !this.hasTag("undead") ? 1.35f : 1.0f;
+	const bool high_explosive = hasTech(TechTree, Tech::HighExplosives) && this.getTeamNum() == 0;
+	const f32 radius_percent = high_explosive ? 1.35f : 1.0f;
 	radius *= radius_percent;
 
 	const f32 map_damage_radius =   this.exists("map_damage_radius")  ? this.get_f32("map_damage_radius")   : 0.0f;
 	const f32 map_damage_ratio =    this.exists("map_damage_ratio")   ? this.get_f32("map_damage_ratio")    : 0.5f;
 	const bool map_damage_raycast = this.exists("map_damage_raycast") ? this.get_bool("map_damage_raycast") : true;
 	const u8 hitter =               this.exists("custom_hitter")      ? this.get_u8("custom_hitter")        : Hitters::explosion;
+	const bool can_damage_dirt =    this.hasTag("map_damage_ground");
 
 	const bool should_teamkill = this.exists("explosive_teamkill") && this.get_bool("explosive_teamkill");
 
@@ -69,7 +70,7 @@ void Explode(CBlob@ this, f32 radius, f32 damage)
 
 	if (this.hasTag("bomberman_style"))
 	{
-		BombermanExplosion(this, radius, damage, hitter, should_teamkill, high_explosive);
+		BombermanExplosion(this, radius, damage, hitter, should_teamkill);
 		return; //------------------------------------------------------ END WHEN BOMBERMAN
 	}
 
@@ -182,7 +183,7 @@ void Explode(CBlob@ this, f32 radius, f32 damage)
 
 						if (canHit)
 						{
-							if (canExplosionDamage(map, tpos, tile))
+							if (canExplosionDamage(can_damage_dirt, map, tpos, tile))
 							{
 								if (!map.isTileBedrock(tile))
 								{
@@ -259,6 +260,7 @@ void LinearExplosion(CBlob@ this, const Vec2f&in _direction, f32 length, const f
 	int width_steps = int(width / tilesize);
 	int damagedsteps = 0;
 	bool laststep = false;
+	bool can_damage_dirt = this.hasTag("map_damage_ground");
 
 	for (int step = 0; step <= steps; ++step)
 	{
@@ -286,7 +288,7 @@ void LinearExplosion(CBlob@ this, const Vec2f&in _direction, f32 length, const f
 				}
 				else if (t != CMap::tile_empty && t != CMap::tile_ground_back)
 				{
-					if (canExplosionDamage(map, tpos, t))
+					if (canExplosionDamage(can_damage_dirt, map, tpos, t))
 					{
 						if (!justhurt)
 							damaged = true;
@@ -372,7 +374,7 @@ void LinearExplosion(CBlob@ this, const Vec2f&in _direction, f32 length, const f
 	}
 }
 
-void BombermanExplosion(CBlob@ this, const f32&in radius, const f32&in damage, const u8&in hitter, const bool&in should_teamkill, const bool&in high_explosive)
+void BombermanExplosion(CBlob@ this, const f32&in radius, const f32&in damage, const u8&in hitter, const bool&in should_teamkill)
 {
 	Vec2f pos = this.getPosition();
 	CMap@ map = getMap();
@@ -389,7 +391,7 @@ void BombermanExplosion(CBlob@ this, const f32&in radius, const f32&in damage, c
 	LinearExplosion(this, Vec2f(1, 0), radius, ray_width, steps, damage, hitter, blobs, should_teamkill);  //right
 }
 
-bool canExplosionDamage(CMap@ map, Vec2f&in tpos, const TileType&in t)
+bool canExplosionDamage(const bool&in can_damage_dirt, CMap@ map, Vec2f&in tpos, const TileType&in t)
 {
 	bool hasValidFrontBlob = false;
 	if (getTileTierBackground(t) > 0)
@@ -401,7 +403,7 @@ bool canExplosionDamage(CMap@ map, Vec2f&in tpos, const TileType&in t)
 			hasValidFrontBlob = support > 0 && support != 5; //all 'block_support' blobs not including ladders
 		}
 	}
-	const bool isGround = t == CMap::tile_ground_d0 || t == CMap::tile_stone_d0 || t == CMap::tile_ironore_f || t == CMap::tile_coal_f;
+	const bool isGround = (t == CMap::tile_ground_d0 || t == CMap::tile_stone_d0 || t == CMap::tile_ironore_f || t == CMap::tile_coal_f) && !can_damage_dirt;
 	return map.getSectorAtPosition(tpos, "no build") is null &&
            !isGround && //don't destroy ground, hit until its almost dead tho
 		   !hasValidFrontBlob; // don't destroy backwall if there is a door or trap block
