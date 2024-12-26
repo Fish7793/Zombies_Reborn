@@ -1,9 +1,9 @@
 // Functions for getting survivors
 
-CBlob@[] getSurvivors()
+CBlob@[] getSurvivors(CPlayer@ excluded = null)
 {
 	CPlayer@[] survivor_players;
-	CBlob@[] survivors = getSurvivors(survivor_players);
+	CBlob@[] survivors = getSurvivors(survivor_players, excluded);
 	return survivors;
 }
 
@@ -26,4 +26,22 @@ CBlob@[] getSurvivors(CPlayer@[]@ survivor_players, CPlayer@ excluded = null)
 	}
 
 	return survivors;
+}
+
+CPlayer@[] getSpectators(CPlayer@ excluded = null)
+{
+	CPlayer@[] spectator_players;
+	const u8 spectator_team = getRules().getSpectatorTeamNum();
+	const u8 playerCount = getPlayerCount();
+	for (u8 i = 0; i < playerCount; i++)
+	{
+		CPlayer@ player = getPlayer(i);
+		if (player is null || player is excluded) continue;
+
+		if (player.getTeamNum() == spectator_team)
+		{
+			spectator_players.push_back(player);
+		}
+	}
+	return spectator_players;
 }

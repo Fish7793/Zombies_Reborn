@@ -145,7 +145,7 @@ void checkGameEnded(CRules@ this, CPlayer@ player)
 	if (dayNumber < 2) return;
 
 	//have all players died?
-	if (getSurvivors().length > 0) return;
+	if (getSurvivors(player).length > 0) return;
 
 	//make certain we only set game end once
 	if (this.getCurrentState() == GAME_OVER) return;
@@ -154,4 +154,21 @@ void checkGameEnded(CRules@ this, CPlayer@ player)
 	string[] inputs = {dayNumber+""};
 	getEndGameStatistics(this, @inputs);
 	server_SendGlobalMessage(this, 1, nextmap_seconds, inputs);
+}
+
+void onPlayerLeave(CRules@ this, CPlayer@ player)
+{
+	antiSpectatorCamping(player);
+}
+
+void antiSpectatorCamping(CPlayer@ excluded = null)
+{
+	CPlayer@[] players; getSurvivors(@players, excluded);
+	if (players.length > 0) return;
+	
+	CPlayer@[] spectators = getSpectators(excluded);
+	if (spectators.length <= 0) return;
+	
+	CPlayer@ random_player = spectators[XORRandom(spectators.length)];
+	random_player.server_setTeamNum(0);
 }
