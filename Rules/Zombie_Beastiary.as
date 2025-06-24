@@ -5,46 +5,67 @@ EasyUI@ ui;
 // const string beast_page = "zombie_beastiary_page";
 // Beastiary@ beastiary;
 
+CustomPane@[] beastiaryMenuItems;
+
+class CustomPane : StandardPane
+{
+    CustomPane(EasyUI@ ui, StandardPaneType type)
+    {
+        super(ui, type);
+    }
+
+    CustomPane(EasyUI@ ui)
+    {
+        super(ui);
+    }
+
+    void SetType(StandardPaneType type)
+    {
+        this.type = type;
+    }
+}
+
 void addBeastiaryMenuItem(Pane@ menu, string texture, Vec2f frameDim=Vec2f(32.0, 32.0), uint frameIndex=0)
 {
-    //todo make clickable
+    //todo make clickable and add a frame around the image, or change the image so it already includes a frame
+    //      refactor to use event handler on hover?
+    // make menu margin even on both sides
     Vec2f menuItemDim(128.0, 128.0);
-    Icon@ menuItem = StandardIcon();
-    menuItem.SetTexture(texture);
+
+    CustomPane@ menuItem = CustomPane(ui);
     menuItem.SetMinSize(menuItemDim.x, menuItemDim.y);
     menuItem.SetMaxSize(menuItemDim.x, menuItemDim.y);
-    menuItem.SetStretchRatio(1.0, 1.0);
-    menuItem.SetFrameDim(frameDim.x, frameDim.y);
-    menuItem.SetFrameIndex(frameIndex);
-    menuItem.SetFixedAspectRatio(false);
+    menuItem.SetMargin(10, 10);
+
+    Icon@ menuIcon = StandardIcon();
+    menuIcon.SetTexture(texture);
+    menuIcon.SetMinSize(menuItemDim.x, menuItemDim.y);
+    menuIcon.SetMaxSize(menuItemDim.x, menuItemDim.y);
+    menuIcon.SetStretchRatio(1.0, 1.0);
+    menuIcon.SetFrameDim(frameDim.x, frameDim.y);
+    menuIcon.SetFrameIndex(frameIndex);
+    menuIcon.SetFixedAspectRatio(false);
+    beastiaryMenuItems.push_back(menuItem);
+
+    menuItem.AddComponent(menuIcon);
     menu.AddComponent(menuItem);
 }
 
 Pane@ createBeastiaryMainPage(EasyUI@ ui)
 {
-    // Vec2f helpBackgroundDim = Vec2f(341, 273) * 2;
-
-    // Icon@ helpBackground = StandardIcon();
-    // helpBackground.SetTexture("HelpBackground.png");
-    // helpBackground.SetMinSize(helpBackgroundDim.x, helpBackgroundDim.y);
-    // // helpBackground.SetMaxSize(helpBackgroundDim.x, helpBackgroundDim.y);
-    // helpBackground.SetStretchRatio(1.0, 1.0);
-    // helpBackground.SetFrameDim(helpBackgroundDim.x, helpBackgroundDim.y);
-    // helpBackground.SetFrameIndex(0);
-    // helpBackground.SetFixedAspectRatio(false);
-
+    //todo: add "Beastiary title", make scrollable
     Pane@ menu = StandardPane(ui, StandardPaneType::Window);
     menu.SetAlignment(0.5f, 0.5f);
-    menu.SetMaxSize(600, 600);
+    menu.SetMaxSize(384, 512);
     menu.SetStretchRatio(1.0f, 1.0f);
     menu.SetCellWrap(3);
+    menu.SetPadding(50, 50);
     ui.AddComponent(menu);
     return menu;
 }
 
 void onInit(CRules@ this)
 {
-    // this.set_u16(beast_page, 0);
     onRestart(this);
 }
 
@@ -83,6 +104,18 @@ void onRestart(CRules@ this)
 
 void onTick(CRules@ this)
 {
+    for (int i = 0; i < beastiaryMenuItems.length; i++)
+    {
+        CustomPane@ icon = beastiaryMenuItems[i];
+        if (icon.isHovering())
+        {
+            icon.SetType(StandardPaneType::Sunken);
+        }
+        else
+        {
+            icon.SetType(StandardPaneType::Normal);
+        }
+    }
     ui.Update();
 }
 
