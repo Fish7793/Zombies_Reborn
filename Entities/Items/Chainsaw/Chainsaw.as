@@ -48,6 +48,7 @@ void onInit(CSprite@ this)
 	this.SetEmitSound("/Chainsaw.ogg");
 	this.SetEmitSoundVolume(0.3f);
 	this.SetEmitSoundSpeed(1.5f);
+	this.SetEmitSoundPaused(true);
 }
 
 void onInit(CBlob@ this)
