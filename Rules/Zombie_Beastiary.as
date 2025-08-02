@@ -1,10 +1,15 @@
 //TODO (check other todos throughout this file too)
-//  change spacing between header and page content on pages, so that the page content takes up more room. 
+//  change spacing between header and page content on pages, so that the page content takes up more room
 //      possibly add scrolling
 //  add a back button on pages to go back to main menu
-//  add a hotkey or button that opens the main menu
+//  add button to zombie_scoreboard (opened with backspace) that holds the bestiary button
+//      either make bestiary overlap the scoreboard, or close the scoreboard and add back button to the bestiary
+//  possibly redo zombie_scoreboard if it's too hard to add interactions
+//  replace every occurance of "beastiary" verbiage with "bestiary"
+//  may need translations since we are doing that elsewhere
 // ZOMBIE DISCOVERY SYSTEM
-//  icons are a "?" until the zombie has been encountered (talk to brysen to figure out conditions) and the button is unclickable
+//  icons are "?" until discovered, making them unclickable. 
+//      build framework for saving unlocked zombies and displaying them. Brysen will implement conditions
 
 #include "EasyUI.as"
 #define CLIENT_ONLY
@@ -34,11 +39,11 @@ class MenuButtonReleaseHandler : EventHandler
     }
 }
 
-class CloseReleaseHandler : EventHandler
+class CloseButtonReleaseHandler : EventHandler
 {
     List@ list;
 
-    CloseReleaseHandler(List@ otherList)
+    CloseButtonReleaseHandler(List@ otherList)
     {
         @list = otherList;
     }
@@ -48,6 +53,31 @@ class CloseReleaseHandler : EventHandler
         if (list !is null)
         {
             list.SetVisible(false);
+        }
+    }
+}
+
+class BackButtonReleaseHandler : EventHandler
+{
+    List@ currentPage;
+    List@ menuContainer;
+
+    BackButtonReleaseHandler(List@ currentPage, List@ menuContainer)
+    {
+        @this.currentPage = currentPage;
+        @this.menuContainer = menuContainer;
+    }
+
+    void Handle()
+    {
+        if (currentPage !is null && menuContainer !is null)
+        {
+            print("HANDLE BACK BUTTON");
+            currentPage.SetVisible(false);
+            menuContainer.SetVisible(true);
+        }
+        else {
+            print("CURRENT PAGE IS NULL OR MENU CONTAINER IS NULL");
         }
     }
 }
@@ -68,10 +98,10 @@ class MenuItem : StandardPane
     }
 }
 
-Pane@ createPage(EasyUI@ ui, string titleText, string descriptionText, string texture, Vec2f frameDim=Vec2f(32.0, 32.0), uint frameIndex=0)
+Pane@ createPage(EasyUI@ ui, List@ menuContainer, string titleText, string descriptionText, string texture, Vec2f frameDim=Vec2f(32.0, 32.0), uint frameIndex=0)
 {
     Pane@ page = StandardPane(ui, StandardPaneType::Window);
-    List@ header = createHeader(titleText, page);
+    List@ header = createHeader(titleText, page, menuContainer);
     Label@ title = StandardLabel();
     title.SetText(titleText);
     title.SetMargin(0, 10);
@@ -98,7 +128,6 @@ Pane@ createPage(EasyUI@ ui, string titleText, string descriptionText, string te
     descriptionIcon.SetCellWrap(2);
 
     page.AddComponent(header);
-    // page.AddComponent(title);
     page.AddComponent(descriptionIcon);
     page.SetMaxSize(512, 512);
     page.SetMinSize(512, 512);
@@ -113,7 +142,7 @@ void addBeastiaryMenuItem(EasyUI@ ui, List@ menuContainer, Pane@ menu, string te
 {
     // TODO: fix text
     // Page@ page = Page(ui, texture, texture, texture);
-    Pane@ page = createPage(ui, texture, texture, texture);
+    Pane@ page = createPage(ui, menuContainer, texture, texture, texture);
     ui.AddComponent(page);
 
     Vec2f menuItemDim(128.0, 128.0);
@@ -141,23 +170,25 @@ void addBeastiaryMenuItem(EasyUI@ ui, List@ menuContainer, Pane@ menu, string te
     menu.AddComponent(menuItem);
 }
 
-List@ createHeader(string titleText, List@ listToClose)
+List@ createHeader(string titleText, List@ listToClose, List@ menuContainer = null)
 {
-    Vec2f closeButtonDim(32.0f, 32.0f);
+    List@ header = StandardList();
+    Vec2f menuItemDim(32.0f, 32.0f);
 
+    //TODO create common function to handle creating the buttons to reduce repetitive code
     Icon@ closeButtonIcon = StandardIcon();
     closeButtonIcon.SetTexture("MenuItems.png");
-    closeButtonIcon.SetMinSize(closeButtonDim.x, closeButtonDim.y);
-    closeButtonIcon.SetMaxSize(closeButtonDim.x, closeButtonDim.y);
+    closeButtonIcon.SetMinSize(menuItemDim.x, menuItemDim.y);
+    closeButtonIcon.SetMaxSize(menuItemDim.x, menuItemDim.y);
     closeButtonIcon.SetStretchRatio(1.0, 1.0);
-    closeButtonIcon.SetFrameDim(closeButtonDim.x, closeButtonDim.y);
+    closeButtonIcon.SetFrameDim(menuItemDim.x, menuItemDim.y);
     closeButtonIcon.SetFrameIndex(29);
     closeButtonIcon.SetFixedAspectRatio(false);
 
     Button@ closeButton = StandardButton(ui);
     closeButton.AddComponent(closeButtonIcon);
     closeButton.SetAlignment(1.0f, 0.0f);
-    closeButton.AddEventListener(Event::Release, CloseReleaseHandler(listToClose));
+    closeButton.AddEventListener(Event::Release, CloseButtonReleaseHandler(listToClose));
 
     Label@ label = StandardLabel();
     label.SetText(titleText);
@@ -165,24 +196,47 @@ List@ createHeader(string titleText, List@ listToClose)
     label.SetAlignment(0.5f, 0.0f);
 
     List@ title = StandardList();
-    title.SetAlignment(1.0f, 0.0f);
+    title.SetAlignment(0.5f, 0.0f);
     // title.SetStretchRatio(1.0f, 1.0f);
     title.AddComponent(label);
     // title.SetMargin(0, 10);
 
-    List@ header = StandardList();
-    //TODO: add back arrow button to header
-    header.SetStretchRatio(1.0f, 0.0f);
-    header.SetAlignment(0.5f, 0.0f);
-    header.SetCellWrap(2);
+    if (menuContainer !is null)
+    {
+        header.SetCellWrap(3);
+
+        Icon@ backButtonIcon = StandardIcon();
+        backButtonIcon.SetTexture("MenuItems.png");
+        backButtonIcon.SetMinSize(menuItemDim.x, menuItemDim.y);
+        backButtonIcon.SetMaxSize(menuItemDim.x, menuItemDim.y);
+        backButtonIcon.SetStretchRatio(1.0, 1.0);
+        backButtonIcon.SetFrameDim(menuItemDim.x, menuItemDim.y);
+        backButtonIcon.SetFrameIndex(2);
+        backButtonIcon.SetFixedAspectRatio(false);
+    
+        Button@ backButton = StandardButton(ui);
+        backButton.AddComponent(backButtonIcon);
+        backButton.SetAlignment(1.0f, 0.0f);
+        backButton.AddEventListener(Event::Release, BackButtonReleaseHandler(listToClose, menuContainer));
+
+        header.AddComponent(backButton);
+    }
+    else
+    {
+        header.SetCellWrap(2);
+    }
+    
     header.AddComponent(title);
     header.AddComponent(closeButton);
+    header.SetStretchRatio(1.0f, 0.0f);
+    header.SetAlignment(0.5f, 0.0f);
 
     return header;
 }
 
 List@ createBeastiaryMainPage(EasyUI@ ui)
 {   
+    //TODO: make everything a Page, to keep things consistent and easier
     /*** MENU (ICON BUTTONS) ***/
     Pane@ menu = StandardPane(ui, StandardPaneType::Window);
     menu.SetAlignment(0.5f, 0.0f);
