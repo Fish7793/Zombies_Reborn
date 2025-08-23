@@ -1,6 +1,4 @@
 //TODO (check other todos throughout this file too)
-//  change spacing between header and page content on pages, so that the page content takes up more room
-//      possibly add scrolling
 //  add button to zombie_scoreboard (opened with backspace) that holds the bestiary button
 //      either make bestiary overlap the scoreboard, or close the scoreboard and add back button to the bestiary
 //  possibly redo zombie_scoreboard if it's too hard to add interactions
@@ -233,7 +231,7 @@ List@ createHeader(string titleText, List@ listClose, List@ listBack = null)
     return header;
 }
 
-List@ createBestiaryMainPage(EasyUI@ ui)
+StandardPane@ createBestiaryMainPage(EasyUI@ ui)
 {   
     /*** MENU (ICON BUTTONS) ***/
     // Pane@ menu = StandardPane(ui, StandardPaneType::Window);
@@ -246,7 +244,7 @@ List@ createBestiaryMainPage(EasyUI@ ui)
 
     //TODO rename menuContainer or menu so it makes more sense
     /*** MENU CONTAINER THAT HOLDS ALL COMPONENTS ***/
-    Pane@ menuContainer = StandardPane(ui, StandardPaneType::Window);
+    StandardPane@ menuContainer = StandardPane(ui, StandardPaneType::Window);
     List@ header = createHeader("Bestiary", menuContainer);
     header.SetPadding(50, 0);
 
@@ -278,8 +276,10 @@ void onInit(CRules@ this)
 void onRestart(CRules@ this)
 {
     @ui = EasyUI();
-    List@ menuContainer = createBestiaryMainPage(ui);
+    StandardPane@ menuContainer = createBestiaryMainPage(ui);
+    menuContainer.SetVisible(false);
     // Pane@ menu = cast<Pane>(menuContainer.getComponents()[1]);
+    this.set("menuContainer", @menuContainer);
 }
 
 void onTick(CRules@ this)
@@ -290,5 +290,5 @@ void onTick(CRules@ this)
 void onRender(CRules@ this)
 {
     ui.Render();
-    ui.Debug(getControls().isKeyPressed(KEY_LSHIFT));
+    // ui.Debug(getControls().isKeyPressed(KEY_LSHIFT));
 }
