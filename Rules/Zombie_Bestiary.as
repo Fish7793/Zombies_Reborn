@@ -1,6 +1,5 @@
 //TODO (check other todos throughout this file too)
-//  add button to zombie_scoreboard (opened with backspace) that holds the bestiary button
-//      either make bestiary overlap the scoreboard, or close the scoreboard and add back button to the bestiary
+// add back button to zombie bestiary main menu that goes back to the scoreboard
 //  possibly redo zombie_scoreboard if it's too hard to add interactions
 //  replace every occurance of "bestiary" verbiage with "bestiary"
 //  may need translations since we are doing that elsewhere
@@ -69,12 +68,8 @@ class BackButtonReleaseHandler : EventHandler
     {
         if (currentPage !is null && menuContainer !is null)
         {
-            print("HANDLE BACK BUTTON");
             currentPage.SetVisible(false);
             menuContainer.SetVisible(true);
-        }
-        else {
-            print("CURRENT PAGE IS NULL OR MENU CONTAINER IS NULL");
         }
     }
 }
@@ -289,6 +284,9 @@ void onTick(CRules@ this)
 
 void onRender(CRules@ this)
 {
-    ui.Render();
+    if (ui !is null)
+    {
+        ui.Render();
+    }
     // ui.Debug(getControls().isKeyPressed(KEY_LSHIFT));
 }

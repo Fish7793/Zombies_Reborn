@@ -206,24 +206,15 @@ void onRenderScoreboard(CRules@ this)
 	Vec2f mousePos = controls.getMouseScreenPos();
 
 	StandardPane@ menuContainer;
-	if (!this.get("menuContainer", @menuContainer)) {
-		print("***********************************");
-		print("COULD NOT GET MENU CONTAINER");
-		print("***********************************");
-	}
-
-	// menuContainer.SetVisible(true);
-	print("***********************************");
-	print(menuContainer.maxLines + "");
-	print("***********************************");
+	this.get("menuContainer", @menuContainer);
 
 	ZombieScoreboardButtonHandler@ discordHandler = WebsiteButtonHandler("https://discord.gg/V29BBeba3C");
 	ZombieScoreboardButtonHandler@ githubHandler = WebsiteButtonHandler("https://github.com/Gingerbeard5773/Zombies_Reborn");
-	// ZombieScoreboardButtonHandler@ bestiaryHandler = EasyUIListVisibilityHandler(menuContainer);
+	ZombieScoreboardButtonHandler@ bestiaryHandler = EasyUIListVisibilityHandler(menuContainer);
 	
 	makeZombieScoreboardButton(topleft + Vec2f(0, -70), "Discord", discordHandler, controls, mousePos);
 	makeZombieScoreboardButton(topleft + Vec2f(100, -70), "Github", githubHandler, controls, mousePos);
-	// makeZombieScoreboardButton(topleft + Vec2f(190, -70), "Bestiary", bestiaryHandler, controls, mousePos);
+	makeZombieScoreboardButton(topleft + Vec2f(190, -70), "Bestiary", bestiaryHandler, controls, mousePos);
 	
 	drawStagingPopup(topleft);
 
@@ -417,24 +408,15 @@ void onRender(CRules@ this)
 	drawStagingPopup(topLeft);
 
 	StandardPane@ menuContainer;
-
-	if (!this.get("menuContainer", @menuContainer)) {
-		print("***********************************");
-		print("COULD NOT GET MENU CONTAINER");
-		print("***********************************");
-	}
-	// menuContainer.SetVisible(true);
-	print("***********************************");
-	print(menuContainer.maxLines + "");
-	print("***********************************");
+	this.get("menuContainer", @menuContainer);
 
 	ZombieScoreboardButtonHandler@ discordHandler = WebsiteButtonHandler("https://discord.gg/V29BBeba3C");
 	ZombieScoreboardButtonHandler@ githubHandler = WebsiteButtonHandler("https://github.com/Gingerbeard5773/Zombies_Reborn");
-	// ZombieScoreboardButtonHandler@ bestiaryHandler = EasyUIListVisibilityHandler(menuContainer);
+	ZombieScoreboardButtonHandler@ bestiaryHandler = EasyUIListVisibilityHandler(menuContainer);
 	
 	makeZombieScoreboardButton(Vec2f(topLeft.x, center.y + imageSize.y + 10), "Discord", discordHandler, controls, mousePos);
 	makeZombieScoreboardButton(Vec2f(topLeft.x + 100, center.y + imageSize.y + 10), "Github", githubHandler, controls, mousePos);
-	// makeZombieScoreboardButton(Vec2f(topLeft.x + 190, center.y + imageSize.y + 10), "Bestiary", bestiaryHandler, controls, mousePos);
+	makeZombieScoreboardButton(Vec2f(topLeft.x + 190, center.y + imageSize.y + 10), "Bestiary", bestiaryHandler, controls, mousePos);
 	
 	//page num
 	drawTextWithFont((page+1)+"/"+pages, center + imageSize - Vec2f(30, 25), "medium font");
@@ -550,52 +532,22 @@ class WebsiteButtonHandler : ZombieScoreboardButtonHandler
 
 class EasyUIListVisibilityHandler : ZombieScoreboardButtonHandler
 {
-	Pane@ pane;
+	StandardPane@ pane;
 
-	EasyUIListVisibilityHandler(Pane@ otherPane)
+	EasyUIListVisibilityHandler(StandardPane@ otherPane)
 	{
 		@pane = otherPane;
 	}
 
 	void Handle()
 	{
-		//todo: make scoreboard invisible
 		if (pane !is null)
 		{
+			show_gamehelp = false;
 			pane.SetVisible(true);
 		}
 	}
 }
-
-// void makeWebsiteLink(Vec2f pos, const string&in text, const string&in website, CControls@ controls, Vec2f&in mousePos)
-// {
-// 	GUI::SetFont("medium font");
-// 	Vec2f dim;
-// 	GUI::GetTextDimensions(text, dim);
-
-// 	const f32 width = dim.x + 20;
-// 	const f32 height = 40;
-// 	Vec2f tl = pos;
-// 	Vec2f br = Vec2f(width + pos.x, pos.y + height);
-
-// 	const bool hover = (mousePos.x > tl.x && mousePos.x < br.x && mousePos.y > tl.y && mousePos.y < br.y);
-// 	if (hover)
-// 	{
-// 		GUI::DrawButton(tl, br);
-
-// 		if (controls.mousePressed1 && !mousePress)
-// 		{
-// 			Sound::Play("option");
-// 			OpenWebsite(website);
-// 		}
-// 	}
-// 	else
-// 	{
-// 		GUI::DrawPane(tl, br, 0xffcfcfcf);
-// 	}
-
-// 	GUI::DrawTextCentered(text, Vec2f(tl.x + (width * 0.50f), tl.y + (height * 0.50f)), 0xffffffff);
-// }
 
 void makeZombieScoreboardButton(Vec2f pos, const string&in text, ZombieScoreboardButtonHandler@ handler, CControls@ controls, Vec2f&in mousePos)
 {
