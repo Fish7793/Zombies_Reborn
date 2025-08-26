@@ -161,7 +161,7 @@ void onTick(CRules@ this)
 	CControls@ controls = getControls();
 	if (controls.isKeyJustPressed(controls.getActionKeyKey(AK_MENU)))
 	{
-		show_gamehelp = !show_gamehelp;
+		this.set_bool("show_gamehelp", !this.get_bool("show_gamehelp"));
 	}
 
 	if (!isPlayerListShowing())
@@ -172,7 +172,7 @@ void onTick(CRules@ this)
 
 void onRenderScoreboard(CRules@ this)
 {
-	if (show_gamehelp) return;
+	if (this.get_bool("show_gamehelp")) return;
 	
 	yFallDown = Maths::Max(0, yFallDown - getRenderApproximateCorrectionFactor()*fallSpeed);
 	
@@ -210,7 +210,7 @@ void onRenderScoreboard(CRules@ this)
 
 	ZombieScoreboardButtonHandler@ discordHandler = WebsiteButtonHandler("https://discord.gg/V29BBeba3C");
 	ZombieScoreboardButtonHandler@ githubHandler = WebsiteButtonHandler("https://github.com/Gingerbeard5773/Zombies_Reborn");
-	ZombieScoreboardButtonHandler@ bestiaryHandler = EasyUIListVisibilityHandler(menuContainer);
+	ZombieScoreboardButtonHandler@ bestiaryHandler = EasyUIListVisibilityHandler(menuContainer, this);
 	
 	makeZombieScoreboardButton(topleft + Vec2f(0, -70), "Discord", discordHandler, controls, mousePos);
 	makeZombieScoreboardButton(topleft + Vec2f(100, -70), "Github", githubHandler, controls, mousePos);
@@ -358,7 +358,6 @@ void drawManualPointer(const f32&in x, const f32&in y)
 
 ///GAMEHELP
 
-bool show_gamehelp = true;
 u8 page = 0;
 const u8 pages = 7;
 
@@ -379,11 +378,12 @@ void onInit(CRules@ this)
 	CFileImage@ image = CFileImage("HelpBackground.png");
 	const Vec2f imageSize = Vec2f(image.getWidth(), image.getHeight());
 	AddIconToken("$HELP$", "HelpBackground.png", imageSize, 0);
+	this.set_bool("show_gamehelp", true);
 }
 
 void onRender(CRules@ this)
 {
-	if (!show_gamehelp) return;
+	if (!this.get_bool("show_gamehelp")) return;
 
 	CPlayer@ player = getLocalPlayer();
 	if (player is null) return;
@@ -412,7 +412,7 @@ void onRender(CRules@ this)
 
 	ZombieScoreboardButtonHandler@ discordHandler = WebsiteButtonHandler("https://discord.gg/V29BBeba3C");
 	ZombieScoreboardButtonHandler@ githubHandler = WebsiteButtonHandler("https://github.com/Gingerbeard5773/Zombies_Reborn");
-	ZombieScoreboardButtonHandler@ bestiaryHandler = EasyUIListVisibilityHandler(menuContainer);
+	ZombieScoreboardButtonHandler@ bestiaryHandler = EasyUIListVisibilityHandler(menuContainer, this);
 	
 	makeZombieScoreboardButton(Vec2f(topLeft.x, center.y + imageSize.y + 10), "Discord", discordHandler, controls, mousePos);
 	makeZombieScoreboardButton(Vec2f(topLeft.x + 100, center.y + imageSize.y + 10), "Github", githubHandler, controls, mousePos);
@@ -474,7 +474,7 @@ void makeExitButton(CRules@ this, Vec2f&in pos, CControls@ controls, Vec2f&in mo
 		if (controls.mousePressed1 && !mousePress)
 		{
 			Sound::Play("option");
-			show_gamehelp = false;
+			this.set_bool("show_gamehelp", false);
 		}
 	}
 	else
@@ -532,18 +532,20 @@ class WebsiteButtonHandler : ZombieScoreboardButtonHandler
 
 class EasyUIListVisibilityHandler : ZombieScoreboardButtonHandler
 {
+	CRules@ rules;
 	StandardPane@ pane;
 
-	EasyUIListVisibilityHandler(StandardPane@ otherPane)
+	EasyUIListVisibilityHandler(StandardPane@ otherPane, CRules@ otherRules)
 	{
 		@pane = otherPane;
+		@rules = otherRules;
 	}
 
 	void Handle()
 	{
 		if (pane !is null)
 		{
-			show_gamehelp = false;
+			rules.set_bool("show_gamehelp", false);
 			pane.SetVisible(true);
 		}
 	}
@@ -659,7 +661,7 @@ bool onClientProcessChat(CRules@ this, const string &in textIn, string &out text
 	{
 		if (SaidLag(textIn))
 		{
-			show_gamehelp = true;
+			this.set_bool("show_gamehelp", true);
 		}
 	}
 	

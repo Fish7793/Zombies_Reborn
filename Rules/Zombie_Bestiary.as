@@ -57,6 +57,7 @@ class BackButtonReleaseHandler : EventHandler
 {
     List@ currentPage;
     List@ menuContainer;
+    CRules@ rules;
 
     BackButtonReleaseHandler(List@ currentPage, List@ menuContainer)
     {
@@ -64,12 +65,26 @@ class BackButtonReleaseHandler : EventHandler
         @this.menuContainer = menuContainer;
     }
 
+    BackButtonReleaseHandler(CRules@ rules, List@ currentPage)
+    {
+        @this.currentPage = currentPage;
+        @this.rules = rules;
+    }
+
     void Handle()
     {
-        if (currentPage !is null && menuContainer !is null)
+        if (currentPage !is null)
         {
             currentPage.SetVisible(false);
-            menuContainer.SetVisible(true);
+
+            if (menuContainer !is null)
+            {
+                menuContainer.SetVisible(true);
+            }
+            else if (rules !is null)
+            {
+                rules.set_bool("show_gamehelp", true);
+            }
         }
     }
 }
@@ -90,10 +105,10 @@ class MenuItem : StandardPane
     }
 }
 
-Pane@ createPage(EasyUI@ ui, List@ menuContainer, string titleText, string descriptionText, string texture, Vec2f frameDim=Vec2f(32.0, 32.0), uint frameIndex=0)
+Pane@ createPage(CRules@ rules, EasyUI@ ui, List@ menuContainer, string titleText, string descriptionText, string texture, Vec2f frameDim=Vec2f(32.0, 32.0), uint frameIndex=0)
 {
     Pane@ page = StandardPane(ui, StandardPaneType::Window);
-    List@ header = createHeader(titleText, page, menuContainer);
+    List@ header = createHeader(rules, titleText, page, menuContainer);
 
     Label@ description = StandardLabel();
     description.SetText(descriptionText);
@@ -131,10 +146,10 @@ Pane@ createPage(EasyUI@ ui, List@ menuContainer, string titleText, string descr
     return page;
 }
 
-void addBestiaryMenuItem(EasyUI@ ui, List@ menuContainer, List@ menu, string titleText, string descriptionText, string texture, Vec2f frameDim=Vec2f(32.0, 32.0), uint frameIndex=0)
+void addBestiaryMenuItem(CRules@ rules, EasyUI@ ui, List@ menuContainer, List@ menu, string titleText, string descriptionText, string texture, Vec2f frameDim=Vec2f(32.0, 32.0), uint frameIndex=0)
 {
     // TODO: fix text
-    Pane@ page = createPage(ui, menuContainer, titleText, descriptionText, texture, frameDim, frameIndex);
+    Pane@ page = createPage(rules, ui, menuContainer, titleText, descriptionText, texture, frameDim, frameIndex);
     ui.AddComponent(page);
 
     Vec2f menuItemDim(128.0, 128.0);
@@ -162,7 +177,7 @@ void addBestiaryMenuItem(EasyUI@ ui, List@ menuContainer, List@ menu, string tit
     menu.AddComponent(menuItem);
 }
 
-List@ createHeader(string titleText, List@ listClose, List@ listBack = null)
+List@ createHeader(CRules@ rules, string titleText, List@ listClose, List@ listBack = null, bool mainMenu = false)
 {
     List@ header = StandardList();
     Vec2f menuItemDim(32.0f, 32.0f);
@@ -194,7 +209,7 @@ List@ createHeader(string titleText, List@ listClose, List@ listBack = null)
     title.AddComponent(label);
     // title.SetMargin(0, 10);
 
-    if (listBack !is null)
+    if (listBack !is null || mainMenu)
     {
         header.SetCellWrap(3);
 
@@ -209,7 +224,15 @@ List@ createHeader(string titleText, List@ listClose, List@ listBack = null)
     
         Button@ backButton = StandardButton(ui);
         backButton.AddComponent(backButtonIcon);
-        backButton.AddEventListener(Event::Release, BackButtonReleaseHandler(listClose, listBack));
+
+        if (mainMenu)
+        {
+            backButton.AddEventListener(Event::Release, BackButtonReleaseHandler(rules, listClose));
+        }
+        else
+        {
+            backButton.AddEventListener(Event::Release, BackButtonReleaseHandler(listClose, listBack));
+        }
 
         header.AddComponent(backButton);
     }
@@ -226,7 +249,7 @@ List@ createHeader(string titleText, List@ listClose, List@ listBack = null)
     return header;
 }
 
-StandardPane@ createBestiaryMainPage(EasyUI@ ui)
+StandardPane@ createBestiaryMainPage(CRules@ rules, EasyUI@ ui)
 {   
     /*** MENU (ICON BUTTONS) ***/
     // Pane@ menu = StandardPane(ui, StandardPaneType::Window);
@@ -240,7 +263,7 @@ StandardPane@ createBestiaryMainPage(EasyUI@ ui)
     //TODO rename menuContainer or menu so it makes more sense
     /*** MENU CONTAINER THAT HOLDS ALL COMPONENTS ***/
     StandardPane@ menuContainer = StandardPane(ui, StandardPaneType::Window);
-    List@ header = createHeader("Bestiary", menuContainer);
+    List@ header = createHeader(rules, "Bestiary", menuContainer, null, true);
     header.SetPadding(50, 0);
 
     menuContainer.SetStretchRatio(1.0f, 1.0f);
@@ -251,13 +274,13 @@ StandardPane@ createBestiaryMainPage(EasyUI@ ui)
     menuContainer.AddComponent(header);
     menuContainer.AddComponent(menu);
 
-    addBestiaryMenuItem(ui, menuContainer, menu, "Greg", "Greg Description", "Zombies/Greg/Greg.png");
-    addBestiaryMenuItem(ui, menuContainer, menu, "Horror", "Horror Description", "Zombies/Horror/Horror.png");
-    addBestiaryMenuItem(ui, menuContainer, menu, "Skelepede", "Skelepede Description", "Zombies/Skelepede/Skelepede.png", Vec2f(25.0, 25.0));
-    addBestiaryMenuItem(ui, menuContainer, menu, "Skeleton", "Skeleton Description", "Zombies/Skeleton/Skeleton.png", Vec2f(25.0, 25.0));
-    addBestiaryMenuItem(ui, menuContainer, menu, "Wraith", "Wraith Description", "Zombies/Wraith/Wraith.png");
-    addBestiaryMenuItem(ui, menuContainer, menu, "Zombie", "Zombie Description", "Zombies/Zombie/Zombie.png", Vec2f(25.0, 25.0));
-    addBestiaryMenuItem(ui, menuContainer, menu, "Zombie Knight", "Zombie Knight Description", "Zombies/ZombieKnight/ZombieKnight.png");
+    addBestiaryMenuItem(rules, ui, menuContainer, menu, "Greg", "Greg Description", "Zombies/Greg/Greg.png");
+    addBestiaryMenuItem(rules, ui, menuContainer, menu, "Horror", "Horror Description", "Zombies/Horror/Horror.png");
+    addBestiaryMenuItem(rules, ui, menuContainer, menu, "Skelepede", "Skelepede Description", "Zombies/Skelepede/Skelepede.png", Vec2f(25.0, 25.0));
+    addBestiaryMenuItem(rules, ui, menuContainer, menu, "Skeleton", "Skeleton Description", "Zombies/Skeleton/Skeleton.png", Vec2f(25.0, 25.0));
+    addBestiaryMenuItem(rules, ui, menuContainer, menu, "Wraith", "Wraith Description", "Zombies/Wraith/Wraith.png");
+    addBestiaryMenuItem(rules, ui, menuContainer, menu, "Zombie", "Zombie Description", "Zombies/Zombie/Zombie.png", Vec2f(25.0, 25.0));
+    addBestiaryMenuItem(rules, ui, menuContainer, menu, "Zombie Knight", "Zombie Knight Description", "Zombies/ZombieKnight/ZombieKnight.png");
     
     ui.AddComponent(menuContainer);
     return menuContainer;
@@ -271,7 +294,7 @@ void onInit(CRules@ this)
 void onRestart(CRules@ this)
 {
     @ui = EasyUI();
-    StandardPane@ menuContainer = createBestiaryMainPage(ui);
+    StandardPane@ menuContainer = createBestiaryMainPage(this, ui);
     menuContainer.SetVisible(false);
     // Pane@ menu = cast<Pane>(menuContainer.getComponents()[1]);
     this.set("menuContainer", @menuContainer);
