@@ -1,37 +1,41 @@
 //TODO (check other todos throughout this file too)
-// add back button to zombie bestiary main menu that goes back to the scoreboard
-//  possibly redo zombie_scoreboard if it's too hard to add interactions
-//  replace every occurance of "bestiary" verbiage with "bestiary"
 //  may need translations since we are doing that elsewhere
-// ZOMBIE DISCOVERY SYSTEM
-//  icons are "?" until discovered, making them unclickable. 
-//      build framework for saving unlocked zombies and displaying them. Brysen will implement conditions
+//  make pictures centered and look better
 
 #include "EasyUI.as"
 #define CLIENT_ONLY
 
 EasyUI@ ui;
-//todo put this stuff in a namespace
-MenuItem@[] bestiaryMenuItems;
+BestiaryMenuItem@[] bestiaryMenuItems;
+const Vec2f menuItemDim(128.0, 128.0);
 
 class MenuButtonReleaseHandler : EventHandler
 {
+    CRules@ rules;
     List@ menuContainer;
     Pane@ page;
+    string name;
 
-    MenuButtonReleaseHandler(List@ otherMenuContainer, Pane@ otherPage)
+    MenuButtonReleaseHandler(CRules@ otherRules, List@ otherMenuContainer, Pane@ otherPage, string otherName)
     {
+        @rules = otherRules;
         @menuContainer = otherMenuContainer;
         @page = otherPage;
+        name = otherName;
     }
 
     void Handle()
     {
-        if (menuContainer !is null)
+        const bool discovered = rules.get_bool(name + "_discovered");
+
+        if (discovered)
         {
-            menuContainer.SetVisible(false);
+            if (menuContainer !is null)
+            {
+                menuContainer.SetVisible(false);
+            }
+            page.SetVisible(true);
         }
-        page.SetVisible(true);
     }
 }
 
@@ -89,19 +93,56 @@ class BackButtonReleaseHandler : EventHandler
     }
 }
 
-//TODO: get rid of MenuItem and replace it with StandardPane
-class MenuItem : StandardPane
+class BestiaryMenuItemVisibilityHandler : EventHandler
 {
-    //todo remove these as members if not needed, maybe handle AddEventListener outside the class
-    Pane@ page;
-    Button@ button;
+    BestiaryMenuItem@ menuItem;
 
-    MenuItem(EasyUI@ ui, List@ menuContainer, Pane@ otherPage, Button@ otherButton)
+    BestiaryMenuItemVisibilityHandler(BestiaryMenuItem@ otherMenuItem)
+    {
+        @menuItem = otherMenuItem;
+    }
+
+    void Handle()
+    {
+        menuItem.updateButtonIcon();
+    }
+}
+
+class BestiaryMenuItem : StandardPane
+{
+    CRules@ rules;
+    Button@ button;
+    string name;
+    Icon@ icon;
+    Icon@ discoveryIcon;
+
+    BestiaryMenuItem(CRules@ otherRules, EasyUI@ ui, string otherName, List@ menuContainer, Pane@ page, Icon@ menuIcon)
     {
         super(ui);
-        @page = @otherPage;
-        @button = @otherButton;
-        button.AddEventListener(Event::Release, MenuButtonReleaseHandler(menuContainer, otherPage));
+        @rules = otherRules;
+        name = otherName;
+        @icon = menuIcon;
+        @button = StandardButton(ui);
+        @discoveryIcon = createBestiaryMenuIcon("InteractionIcons.png", Vec2f(32.0f, 32.0f), 14);
+        updateButtonIcon();
+        button.AddEventListener(Event::Release, MenuButtonReleaseHandler(rules, menuContainer, page, name));
+        this.AddComponent(button);
+    }
+
+    void updateButtonIcon()
+    {
+        const bool discovered = rules.get_bool(name + "_discovered");
+        Component@[] components;
+        button.SetComponents(components);
+        
+        if (discovered)
+        {
+            button.AddComponent(icon);
+        }
+        else
+        {
+            button.AddComponent(discoveryIcon);
+        }
     }
 }
 
@@ -139,21 +180,13 @@ Pane@ createPage(CRules@ rules, EasyUI@ ui, List@ menuContainer, string titleTex
     page.SetAlignment(0.5f, 0.5f);
     page.SetPadding(50, 50);
     page.SetRowSizes({0.2f, 0.8f});
-    // page.SetRowSizes([0, 1]);
-    // page.SetSpacing(0, 10);
     page.SetVisible(false);
 
     return page;
 }
 
-void addBestiaryMenuItem(CRules@ rules, EasyUI@ ui, List@ menuContainer, List@ menu, string titleText, string descriptionText, string texture, Vec2f frameDim=Vec2f(32.0, 32.0), uint frameIndex=0)
+Icon@ createBestiaryMenuIcon(string texture, Vec2f frameDim, uint frameIndex)
 {
-    // TODO: fix text
-    Pane@ page = createPage(rules, ui, menuContainer, titleText, descriptionText, texture, frameDim, frameIndex);
-    ui.AddComponent(page);
-
-    Vec2f menuItemDim(128.0, 128.0);
-
     Icon@ menuIcon = StandardIcon();
     menuIcon.SetTexture(texture);
     menuIcon.SetMinSize(menuItemDim.x, menuItemDim.y);
@@ -163,14 +196,22 @@ void addBestiaryMenuItem(CRules@ rules, EasyUI@ ui, List@ menuContainer, List@ m
     menuIcon.SetFrameIndex(frameIndex);
     menuIcon.SetFixedAspectRatio(false);
 
-    Button@ menuButton = StandardButton(ui);
-    menuButton.AddComponent(menuIcon);
+    return menuIcon;
+}
 
-    MenuItem@ menuItem = MenuItem(ui, menuContainer, page, menuButton);
+void addBestiaryMenuItem(CRules@ rules, EasyUI@ ui, List@ menuContainer, List@ menu, string name, string descriptionText, string texture, Vec2f frameDim=Vec2f(32.0, 32.0), uint frameIndex=0)
+{
+    string titleText = name.substr(0, 1).toUpper() + name.substr(1).toLower();
+    Pane@ page = createPage(rules, ui, menuContainer, titleText, descriptionText, texture, frameDim, frameIndex);
+    ui.AddComponent(page);
+
+    Icon@ menuIcon = createBestiaryMenuIcon(texture, frameDim, frameIndex);
+
+    BestiaryMenuItem@ menuItem = BestiaryMenuItem(rules, ui, name, menuContainer, page, menuIcon);
     menuItem.SetMinSize(menuItemDim.x, menuItemDim.y);
     menuItem.SetMaxSize(menuItemDim.x, menuItemDim.y);
     menuItem.SetMargin(10, 10);
-    menuItem.AddComponent(menuButton);
+    menuContainer.AddEventListener(Event::Visibility, BestiaryMenuItemVisibilityHandler(menuItem));
     
     bestiaryMenuItems.push_back(menuItem);
 
@@ -180,15 +221,14 @@ void addBestiaryMenuItem(CRules@ rules, EasyUI@ ui, List@ menuContainer, List@ m
 List@ createHeader(CRules@ rules, string titleText, List@ listClose, List@ listBack = null, bool mainMenu = false)
 {
     List@ header = StandardList();
-    Vec2f menuItemDim(32.0f, 32.0f);
+    const Vec2f textureDim(32.0f, 32.0f);
 
-    //TODO create common function to handle creating the buttons to reduce repetitive code
     Icon@ closeButtonIcon = StandardIcon();
     closeButtonIcon.SetTexture("MenuItems.png");
-    closeButtonIcon.SetMinSize(menuItemDim.x, menuItemDim.y);
-    closeButtonIcon.SetMaxSize(menuItemDim.x, menuItemDim.y);
+    closeButtonIcon.SetMinSize(textureDim.x, textureDim.y);
+    closeButtonIcon.SetMaxSize(textureDim.x, textureDim.y);
     closeButtonIcon.SetStretchRatio(1.0, 1.0);
-    closeButtonIcon.SetFrameDim(menuItemDim.x, menuItemDim.y);
+    closeButtonIcon.SetFrameDim(textureDim.x, textureDim.y);
     closeButtonIcon.SetFrameIndex(29);
     closeButtonIcon.SetFixedAspectRatio(false);
 
@@ -205,9 +245,7 @@ List@ createHeader(CRules@ rules, string titleText, List@ listClose, List@ listB
 
     List@ title = StandardList();
     title.SetAlignment(0.5f, 0.0f);
-    // title.SetStretchRatio(1.0f, 1.0f);
     title.AddComponent(label);
-    // title.SetMargin(0, 10);
 
     if (listBack !is null || mainMenu)
     {
@@ -215,10 +253,10 @@ List@ createHeader(CRules@ rules, string titleText, List@ listClose, List@ listB
 
         Icon@ backButtonIcon = StandardIcon();
         backButtonIcon.SetTexture("MenuItems.png");
-        backButtonIcon.SetMinSize(menuItemDim.x, menuItemDim.y);
-        backButtonIcon.SetMaxSize(menuItemDim.x, menuItemDim.y);
+        backButtonIcon.SetMinSize(textureDim.x, textureDim.y);
+        backButtonIcon.SetMaxSize(textureDim.x, textureDim.y);
         backButtonIcon.SetStretchRatio(1.0, 1.0);
-        backButtonIcon.SetFrameDim(menuItemDim.x, menuItemDim.y);
+        backButtonIcon.SetFrameDim(textureDim.x, textureDim.y);
         backButtonIcon.SetFrameIndex(2);
         backButtonIcon.SetFixedAspectRatio(false);
     
@@ -252,7 +290,6 @@ List@ createHeader(CRules@ rules, string titleText, List@ listClose, List@ listB
 StandardPane@ createBestiaryMainPage(CRules@ rules, EasyUI@ ui)
 {   
     /*** MENU (ICON BUTTONS) ***/
-    // Pane@ menu = StandardPane(ui, StandardPaneType::Window);
     List@ menu = StandardList();
     menu.SetAlignment(0.5f, 0.0f);
     menu.SetStretchRatio(1.0f, 1.0f);
@@ -260,7 +297,6 @@ StandardPane@ createBestiaryMainPage(CRules@ rules, EasyUI@ ui)
     menu.SetPadding(50, 50);
     menu.SetMargin(0, 10);
 
-    //TODO rename menuContainer or menu so it makes more sense
     /*** MENU CONTAINER THAT HOLDS ALL COMPONENTS ***/
     StandardPane@ menuContainer = StandardPane(ui, StandardPaneType::Window);
     List@ header = createHeader(rules, "Bestiary", menuContainer, null, true);
@@ -297,7 +333,7 @@ void onRestart(CRules@ this)
     StandardPane@ menuContainer = createBestiaryMainPage(this, ui);
     menuContainer.SetVisible(false);
     // Pane@ menu = cast<Pane>(menuContainer.getComponents()[1]);
-    this.set("menuContainer", @menuContainer);
+    this.set("bestiaryMenuContainer", @menuContainer);
 }
 
 void onTick(CRules@ this)

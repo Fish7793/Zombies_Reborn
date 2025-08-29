@@ -206,7 +206,7 @@ void onRenderScoreboard(CRules@ this)
 	Vec2f mousePos = controls.getMouseScreenPos();
 
 	StandardPane@ menuContainer;
-	this.get("menuContainer", @menuContainer);
+	this.get("bestiaryMenuContainer", @menuContainer);
 
 	ZombieScoreboardButtonHandler@ discordHandler = WebsiteButtonHandler("https://discord.gg/V29BBeba3C");
 	ZombieScoreboardButtonHandler@ githubHandler = WebsiteButtonHandler("https://github.com/Gingerbeard5773/Zombies_Reborn");
@@ -408,7 +408,7 @@ void onRender(CRules@ this)
 	drawStagingPopup(topLeft);
 
 	StandardPane@ menuContainer;
-	this.get("menuContainer", @menuContainer);
+	this.get("bestiaryMenuContainer", @menuContainer);
 
 	ZombieScoreboardButtonHandler@ discordHandler = WebsiteButtonHandler("https://discord.gg/V29BBeba3C");
 	ZombieScoreboardButtonHandler@ githubHandler = WebsiteButtonHandler("https://github.com/Gingerbeard5773/Zombies_Reborn");
