@@ -54,6 +54,7 @@ void onInit(CSprite@ this)
 	}
 	this.SetEmitSound("/Drill.ogg");
 	this.SetEmitSoundSpeed(0.7f);
+	this.SetEmitSoundPaused(true);
 }
 
 void onInit(CBlob@ this)
