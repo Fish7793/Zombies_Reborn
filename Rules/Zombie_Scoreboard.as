@@ -214,7 +214,8 @@ void onRenderScoreboard(CRules@ this)
 	
 	makeZombieScoreboardButton(topleft + Vec2f(0, -70), "Discord", discordHandler, controls, mousePos);
 	makeZombieScoreboardButton(topleft + Vec2f(100, -70), "Github", githubHandler, controls, mousePos);
-	makeZombieScoreboardButton(topleft + Vec2f(190, -70), "Bestiary", bestiaryHandler, controls, mousePos);
+	//TODO: enable button when descriptions are done
+	// makeZombieScoreboardButton(topleft + Vec2f(190, -70), "Bestiary", bestiaryHandler, controls, mousePos);
 	
 	drawStagingPopup(topleft);
 
@@ -416,7 +417,8 @@ void onRender(CRules@ this)
 	
 	makeZombieScoreboardButton(Vec2f(topLeft.x, center.y + imageSize.y + 10), "Discord", discordHandler, controls, mousePos);
 	makeZombieScoreboardButton(Vec2f(topLeft.x + 100, center.y + imageSize.y + 10), "Github", githubHandler, controls, mousePos);
-	makeZombieScoreboardButton(Vec2f(topLeft.x + 190, center.y + imageSize.y + 10), "Bestiary", bestiaryHandler, controls, mousePos);
+	// TODO: enable when descriptions are done
+	// makeZombieScoreboardButton(Vec2f(topLeft.x + 190, center.y + imageSize.y + 10), "Bestiary", bestiaryHandler, controls, mousePos);
 	
 	//page num
 	drawTextWithFont((page+1)+"/"+pages, center + imageSize - Vec2f(30, 25), "medium font");

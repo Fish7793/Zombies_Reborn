@@ -1,7 +1,4 @@
-//TODO (check other todos throughout this file too)
-//  may need translations since we are doing that elsewhere
-//  make pictures centered and look better
-
+//TODO: need better descriptions
 #include "EasyUI.as"
 #define CLIENT_ONLY
 
